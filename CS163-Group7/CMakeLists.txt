@@ -7,6 +7,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Khai báo các file mã nguồn
 set(SOURCES
     src/main.cpp
+    src/App.cpp
+    src/UI/Button.cpp
+    src/UI/TextInput.cpp
+    src/UI/Slider.cpp
+    src/DataStructure/SinglyLinkedList.cpp
+    src/DataStructure/MinMaxHeap.cpp
+    src/DataStructure/AVLTree.cpp
+    src/DataStructure/GraphMST.cpp
 )
 
 
