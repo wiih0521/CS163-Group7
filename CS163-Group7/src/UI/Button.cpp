@@ -6,7 +6,7 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std
     normalColor = sf::Color(60, 60, 60);
     hoverColor = sf::Color(100, 100, 100);
     pressedColor = sf::Color(40, 40, 40);
-    activeColor = sf::Color(0, 120, 215); // Blue highlight
+    activeColor = sf::Color(0, 120, 215); 
 
     shape.setSize(size);
     shape.setPosition(position);
@@ -19,7 +19,6 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std
     buttonText.setCharacterSize(16);
     buttonText.setFillColor(sf::Color::White);
     
-    // Center text
     sf::FloatRect textBounds = buttonText.getLocalBounds();
     buttonText.setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
     buttonText.setPosition(position.x + size.x / 2.0f, position.y + size.y / 2.0f);

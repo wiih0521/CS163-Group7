@@ -20,11 +20,10 @@ App::App() : window(sf::VideoMode(1280, 720), "Data Structure Visualizer", sf::S
     window.setFramerateLimit(60);
     window.setMouseCursorVisible(true);
     
-    // Initialize application state
     activeCategory = Category::LINKED_LIST;
     activeDS = DSType::SINGLY_LINKED_LIST;
     currentDS = std::make_unique<SinglyLinkedList>(windowWidth, windowHeight);
-    isStepMode = true; // or whatever the default should be
+    isStepMode = true;
     
     initUI();
 }
@@ -37,19 +36,16 @@ void App::initUI() {
         std::cerr << "Error loading font for App UI\n";
     }
 
-    // Sidebar
     sidebar.setSize(sf::Vector2f(250.f, windowHeight));
     sidebar.setPosition(0.f, 0.f);
     sidebar.setFillColor(sf::Color(40, 40, 40));
 
-    // Clear UI vectors to prevent duplication on resize
     controlButtons.clear();
     exitConfirmButtons.clear();
 
     buildCategoryButtons();
     buildDSButtons();
 
-    // Common controls
     float controlsY = windowHeight - 160.f;
     controlButtons.push_back(Button(sf::Vector2f(70, 35), sf::Vector2f(10, controlsY), "Play", font, [this]() {
         if (currentDS) currentDS->play();
@@ -66,18 +62,15 @@ void App::initUI() {
         if (currentDS) currentDS->setStepMode(isStepMode);
     }));
 
-    // Exit Button at bottom left
     controlButtons.push_back(Button(sf::Vector2f(230, 35), sf::Vector2f(10, controlsY + 90.f), "Exit", font, [this]() {
         showExitConfirm = true;
     }));
 
-    // Confirmation Buttons
     float cx = windowWidth / 2.f;
     float cy = windowHeight / 2.f;
     exitConfirmButtons.push_back(Button(sf::Vector2f(100, 40), sf::Vector2f(cx - 120, cy + 20), "Yes", font, [this](){ window.close(); }));
     exitConfirmButtons.push_back(Button(sf::Vector2f(100, 40), sf::Vector2f(cx + 20, cy + 20), "No", font, [this](){ showExitConfirm = false; }));
 
-    // Speed Slider
     speedSlider = std::make_unique<Slider>(sf::Vector2f(200, 4), sf::Vector2f(25, controlsY - 45.f), 0.1f, 2.0f, 0.6f, font, "Animation Speed");
     speedSlider->setOnValueChange([this](float val) {
         if (currentDS) currentDS->setPlayInterval(val);
@@ -93,7 +86,6 @@ void App::buildCategoryButtons() {
                 activeCategory = cat;
                 uiNeedsUpdate = true;
                 
-                // Auto-select the first DS in the new category
                 if (cat == Category::LINKED_LIST) {
                     activeDS = DSType::SINGLY_LINKED_LIST;
                     currentDS = std::make_unique<SinglyLinkedList>(windowWidth, windowHeight);
@@ -177,7 +169,7 @@ void App::processEvents() {
             windowWidth = (float)event.size.width;
             windowHeight = (float)event.size.height;
             sidebar.setSize(sf::Vector2f(250.f, windowHeight));
-            initUI(); // Recalculate UI element positions based on new height/width
+            initUI();
             if (currentDS) currentDS->onResize(windowWidth, windowHeight);
             window.setMouseCursorVisible(true);
         }
@@ -188,7 +180,7 @@ void App::processEvents() {
 
         if (showExitConfirm) {
             for (auto& btn : exitConfirmButtons) btn.handleEvent(event, window);
-            continue; // block other inputs while confirming
+            continue;
         }
 
         for (auto& btn : categoryButtons) btn.handleEvent(event, window);
@@ -203,7 +195,7 @@ void App::processEvents() {
 }
 
 void App::update(float dt) {
-    if (dt > 0.05f) dt = 0.05f; // Prevent physics explosion (nodes disappearing) during lag spikes
+    if (dt > 0.05f) dt = 0.05f;
     
     if (uiNeedsUpdate) {
         buildCategoryButtons();
