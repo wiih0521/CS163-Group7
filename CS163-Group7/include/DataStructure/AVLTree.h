@@ -59,4 +59,39 @@ private:
     void drawNode(sf::RenderWindow& window, TreeNode* node,
                   const std::vector<int>& hlValues, sf::Color hlColor,
                   int pivotValue = -1, int unbalancedValue = -1);
+
+    // Step-by-step animation
+    struct VisualStep {
+        std::vector<int> highlightedValues;
+        std::string message;
+        sf::Color highlightColor = sf::Color(220, 180, 0);
+        int pivotValue = -1;       // Node about which we rotate
+        int unbalancedValue = -1;  // Node that became unbalanced
+        SimNode* treeSnapshot = nullptr; // Captured state of the tree
+    };
+    std::vector<VisualStep> animSteps;
+    std::map<int, TreeNode*> nodeCache;
+
+    // Internal simulation helpers
+    SimNode* copySimTree(SimNode* node);
+    void deleteSimTree(SimNode* node);
+    int getSimHeight(SimNode* n);
+    int getSimBalance(SimNode* n);
+    SimNode* rotateRightSim(SimNode* y);
+    SimNode* rotateLeftSim(SimNode* x);
+    void insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep>& steps, SimNode** rootRef);
+    void removeNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep>& steps, SimNode** rootRef);
+    SimNode* minValueNodeSim(SimNode* node);
+
+    float scaleFactor = 1.0f;
+    void applySimStructure(SimNode* simRoot);
+    void clearAnimSteps();
+    int animStep = -1;
+    bool isPlaying = false;
+    float playTimer = 0.f;
+    std::function<void()> commitOp;
+
+    void beginInsertSteps(int value);
+    void beginDeleteSteps(int value);
+    void beginSearchSteps(int value);
 };
