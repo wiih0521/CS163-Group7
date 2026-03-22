@@ -72,7 +72,6 @@ private:
     std::vector<VisualStep> animSteps;
     std::map<int, TreeNode*> nodeCache;
 
-    // Internal simulation helpers
     SimNode* copySimTree(SimNode* node);
     void deleteSimTree(SimNode* node);
     int getSimHeight(SimNode* n);
