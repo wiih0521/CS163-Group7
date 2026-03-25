@@ -55,6 +55,7 @@ void AVLTree::initUI() {
     }));
 }
 
+
 AVLTree::SimNode* AVLTree::copySimTree(SimNode* node) {
     if (!node) return nullptr;
     return new SimNode{node->value, node->height, copySimTree(node->left), copySimTree(node->right)};
@@ -120,46 +121,46 @@ void AVLTree::insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
         return;
     }
 
-    // Refresh node pointer after potential child updates/rotations
+    
     node = *nodeRef;
     node->height = 1 + std::max(getSimHeight(node->left), getSimHeight(node->right));
     int bal = getSimBalance(node);
 
     takeSnapshot("Checking balance of " + std::to_string(node->value) + " (bf=" + std::to_string(bal) + ")", {node->value}, sf::Color(220, 180, 0));
 
-    // LL
+    
     if (bal > 1 && value < (node->left ? node->left->value : -1e9)) {
         int oldVal = node->value; int pivotVal = node->left->value;
         *nodeRef = rotateRightSim(*nodeRef);
         takeSnapshot("Performing Right Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
-    // RR
+    
     if (bal < -1 && value > (node->right ? node->right->value : 1e9)) {
         int oldVal = node->value; int pivotVal = node->right->value;
         *nodeRef = rotateLeftSim(*nodeRef);
         takeSnapshot("Performing Left Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
-    // LR
+    
     if (bal > 1 && value > (node->left ? node->left->value : 1e9)) {
         int childVal = node->left->value;
         node->left = rotateLeftSim(node->left);
         takeSnapshot("Left-Right Case: First rotating left on child " + std::to_string(childVal), {node->left->value}, sf::Color(255, 150, 100));
         
-        node = *nodeRef; // Refresh after child rotation
+        node = *nodeRef; 
         int oldVal = node->value; int pivotVal = node->left->value;
         *nodeRef = rotateRightSim(*nodeRef);
         takeSnapshot("Left-Right Case: Now rotating right on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
-    // RL
+    
     if (bal < -1 && value < (node->right ? node->right->value : -1e9)) {
         int childVal = node->right->value;
         node->right = rotateRightSim(node->right);
         takeSnapshot("Right-Left Case: First rotating right on child " + std::to_string(childVal), {node->right->value}, sf::Color(255, 150, 100));
         
-        node = *nodeRef; // Refresh after child rotation
+        node = *nodeRef; 
         int oldVal = node->value; int pivotVal = node->right->value;
         *nodeRef = rotateLeftSim(*nodeRef);
         takeSnapshot("Right-Left Case: Now rotating left on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
@@ -205,6 +206,7 @@ void AVLTree::removeNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
             int succVal = successor->value;
             node->value = succVal;
             removeNodeSim(&(node->right), succVal, steps, rootRef);
+            
             node = *nodeRef;
         }
     }
@@ -249,6 +251,7 @@ AVLTree::SimNode* AVLTree::minValueNodeSim(SimNode* node) {
     SimNode* cur = node; while (cur->left) cur = cur->left; return cur;
 }
 
+
 void AVLTree::applySimStructure(SimNode* simRoot) {
     std::set<TreeNode*> usedNodes;
     auto sync = [&](auto self, SimNode* sn) -> TreeNode* {
@@ -256,8 +259,11 @@ void AVLTree::applySimStructure(SimNode* simRoot) {
         TreeNode* tn = nullptr;
         if (nodeCache.count(sn->value)) {
             tn = nodeCache[sn->value];
+            
+            
             if (usedNodes.count(tn)) {
                 tn = new TreeNode(sn->value);
+                
                 tn->position = tn->targetPosition = nodeCache[sn->value]->position;
             } else {
                 usedNodes.insert(tn);
@@ -277,9 +283,10 @@ void AVLTree::applySimStructure(SimNode* simRoot) {
     root = sync(sync, simRoot);
 }
 
+
 void AVLTree::beginInsertSteps(int value) {
     clearAnimSteps(); commitOp = nullptr; isPlaying = false; playTimer = 0.f; nodeCache.clear();
-    // Build initial cache from current root
+    
     auto populate = [&](auto self, TreeNode* n) -> void {
         if (!n) return; nodeCache[n->value] = n;
         self(self, n->left); self(self, n->right);
@@ -388,7 +395,7 @@ void AVLTree::beginSearchSteps(int value) {
             animSteps.push_back(s); curr = curr->right;
         } else {
             s.message = "Found "+std::to_string(value)+"!";
-            s.highlightColor = sf::Color(0,200,80); // Green
+            s.highlightColor = sf::Color(0,200,80); 
             animSteps.push_back(s); found = true; break;
         }
     }
@@ -408,4 +415,249 @@ void AVLTree::beginSearchSteps(int value) {
 
     animStep = 0;
     isPlaying = true;
+}
+
+
+void AVLTree::play()  { isPlaying = true; playTimer = 0.f; }
+void AVLTree::pause() { isPlaying = false; }
+void AVLTree::stepForward() {
+    if (animStep < 0 || animSteps.empty()) return;
+    if (animStep + 1 < (int)animSteps.size()) {
+        animStep++;
+        if (animSteps[animStep].treeSnapshot) applySimStructure(animSteps[animStep].treeSnapshot);
+        if (animStep == (int)animSteps.size() - 1) { 
+            if (commitOp) { commitOp(); commitOp = nullptr; }
+            isPlaying = false;
+        }
+    } else {
+        isPlaying = false;
+    }
+}
+void AVLTree::stepBackward() { 
+    if (animStep > 0) {
+        animStep--; 
+        if (animSteps[animStep].treeSnapshot) applySimStructure(animSteps[animStep].treeSnapshot);
+    }
+}
+
+
+int AVLTree::getHeight(TreeNode* n) { return n ? n->height : 0; }
+int AVLTree::getBalance(TreeNode* n) { return n ? getHeight(n->left)-getHeight(n->right) : 0; }
+
+AVLTree::TreeNode* AVLTree::rotateRight(TreeNode* y) {
+    TreeNode* x=y->left, *T2=x->right; x->right=y; y->left=T2;
+    y->height=std::max(getHeight(y->left),getHeight(y->right))+1;
+    x->height=std::max(getHeight(x->left),getHeight(x->right))+1; return x;
+}
+AVLTree::TreeNode* AVLTree::rotateLeft(TreeNode* x) {
+    TreeNode* y=x->right, *T2=y->left; y->left=x; x->right=T2;
+    x->height=std::max(getHeight(x->left),getHeight(x->right))+1;
+    y->height=std::max(getHeight(y->left),getHeight(y->right))+1; return y;
+}
+AVLTree::TreeNode* AVLTree::insertNode(TreeNode* node, int value, sf::Vector2f startPos) {
+    if (!node) {
+        TreeNode* nn = new TreeNode(value);
+        nn->position = startPos;
+        return nn;
+    }
+    if (value<node->value) node->left=insertNode(node->left,value, startPos);
+    else if (value>node->value) node->right=insertNode(node->right,value, startPos);
+    else return node;
+    node->height=1+std::max(getHeight(node->left),getHeight(node->right));
+    int bal=getBalance(node);
+    if (bal>1&&value<node->left->value) return rotateRight(node);
+    if (bal<-1&&value>node->right->value) return rotateLeft(node);
+    if (bal>1&&value>node->left->value){node->left=rotateLeft(node->left);return rotateRight(node);}
+    if (bal<-1&&value<node->right->value){node->right=rotateRight(node->right);return rotateLeft(node);}
+    return node;
+}
+AVLTree::TreeNode* AVLTree::minValueNode(TreeNode* node) {
+    TreeNode* cur=node; while(cur->left)cur=cur->left; return cur;
+}
+AVLTree::TreeNode* AVLTree::removeNode(TreeNode* node, int value) {
+    if (!node) return node;
+    if (value<node->value) node->left=removeNode(node->left,value);
+    else if (value>node->value) node->right=removeNode(node->right,value);
+    else {
+        if (!node->left||!node->right){
+            TreeNode* t=node->left?node->left:node->right;
+            if(!t){t=node;node=nullptr;}else *node=*t; delete t;
+        } else {
+            TreeNode* t=minValueNode(node->right);
+            node->value=t->value; node->right=removeNode(node->right,t->value);
+        }
+    }
+    if (!node) return node;
+    node->height=1+std::max(getHeight(node->left),getHeight(node->right));
+    int bal=getBalance(node);
+    if (bal>1&&getBalance(node->left)>=0) return rotateRight(node);
+    if (bal>1&&getBalance(node->left)<0){node->left=rotateLeft(node->left);return rotateRight(node);}
+    if (bal<-1&&getBalance(node->right)<=0) return rotateLeft(node);
+    if (bal<-1&&getBalance(node->right)>0){node->right=rotateRight(node->right);return rotateLeft(node);}
+    return node;
+}
+void AVLTree::calcPositions(TreeNode* n, int depth, float hs, float vs, float startX, int& index) {
+    if (!n) return;
+    calcPositions(n->left, depth + 1, hs, vs, startX, index);
+    n->targetPosition = {startX + index * hs, 80.f + depth * vs};
+    index++;
+    calcPositions(n->right, depth + 1, hs, vs, startX, index);
+}
+
+
+void AVLTree::update(float dt) {
+    float rootX = 250.f + ((winW - 250.f) / 2.f);
+    
+    
+    int totalNodes = 0;
+    auto count = [&](auto self, TreeNode* n) -> void {
+        if (!n) return;
+        totalNodes++;
+        self(self, n->left);
+        self(self, n->right);
+    };
+    count(count, root);
+
+    int h = getHeight(root);
+    float baseNodeGap = 50.f;
+    float baseVerticalGap = 80.f;
+
+    float requiredWidth = totalNodes * baseNodeGap;
+    float requiredHeight = h * baseVerticalGap;
+
+    float availW = (winW - 250.f) * 0.95f;
+    float availH = (winH - 150.f) * 0.95f;
+
+    
+    float scaleW = (requiredWidth > 0) ? availW / requiredWidth : 1.0f;
+    float scaleH = (requiredHeight > 0) ? availH / requiredHeight : 1.0f;
+    scaleFactor = std::min({1.0f, scaleW, scaleH});
+    
+    
+    if (scaleFactor < 0.2f) scaleFactor = 0.2f;
+
+    float hs = baseNodeGap * scaleFactor;
+    float vs = baseVerticalGap * scaleFactor;
+    
+    
+    float minRadius = 14.f;
+    if (hs < minRadius * 2.2f) hs = minRadius * 2.2f;
+
+    float totalTreeWidth = totalNodes * hs;
+    float startX = 250.f + ((winW - 250.f - totalTreeWidth) / 2.f) + (hs / 2.f);
+
+    int index = 0;
+    calcPositions(root, 0, hs, vs, startX - (hs/2.f), index);
+
+    std::function<void(TreeNode*)> anim = [&](TreeNode* n) {
+        if (!n) return;
+        if (std::isnan(n->position.x) || std::isnan(n->position.y)) n->position = sf::Vector2f(rootX, 50.f);
+        if (std::isnan(n->targetPosition.x) || std::isnan(n->targetPosition.y)) n->targetPosition = sf::Vector2f(rootX, 50.f);
+        n->position.x += (n->targetPosition.x - n->position.x)*12.f*dt;
+        n->position.y += (n->targetPosition.y - n->position.y)*12.f*dt;
+        anim(n->left); anim(n->right);
+    };
+    anim(root);
+    if (isPlaying && animStep >= 0) { playTimer += dt; if (playTimer >= playInterval) { playTimer = 0.f; stepForward(); } }
+}
+
+
+void AVLTree::drawNode(sf::RenderWindow& window, TreeNode* node,
+                       const std::vector<int>& hlValues, sf::Color hlColor,
+                       int pivotValue, int unbalancedValue) {
+    if (!node) return;
+    float radius = std::max(14.f, 22.f * scaleFactor);
+
+    
+    auto drawLine = [&](TreeNode* child){
+        if (!child) return;
+        sf::Vector2f s=node->position+sf::Vector2f(radius,radius);
+        sf::Vector2f e=child->position+sf::Vector2f(radius,radius);
+        sf::Vector2f d=e-s; float len=std::sqrt(d.x*d.x+d.y*d.y);
+        if(len > 1.0f){ 
+            d/=len;
+            sf::Vector2f start = s + d * radius;
+            sf::Vector2f end = e - d * radius;
+            float lineLen = std::max(0.0f, len - radius * 2.f);
+            sf::RectangleShape l(sf::Vector2f(lineLen, 2.f * std::max(0.6f, scaleFactor)));
+            l.setPosition(start);
+            l.setFillColor(sf::Color(150,150,150));
+            l.setRotation(std::atan2(d.y,d.x)*180.f/3.14159f);
+            window.draw(l);
+        }
+    };
+    drawLine(node->left); drawLine(node->right);
+
+    
+    bool isPivot = (pivotValue != -1 && node->value == pivotValue);
+    bool isUnbalanced = (unbalancedValue != -1 && node->value == unbalancedValue);
+    bool hl = std::find(hlValues.begin(), hlValues.end(), node->value) != hlValues.end();
+
+    sf::Color fill = sf::Color(0, 150, 80); 
+    if (isUnbalanced) fill = sf::Color(255, 80, 80); 
+    else if (isPivot) fill = sf::Color(80, 80, 255); 
+    else if (hl) fill = hlColor;
+    
+    sf::CircleShape circle(radius); circle.setPosition(node->position);
+    circle.setFillColor(fill); circle.setOutlineThickness(2.f * std::max(0.6f, scaleFactor)); circle.setOutlineColor(sf::Color::White); window.draw(circle);
+
+    sf::Text txt; txt.setFont(font); txt.setString(std::to_string(node->value));
+    txt.setCharacterSize(static_cast<unsigned int>(std::max(10.f, 18 * scaleFactor))); txt.setFillColor(sf::Color::White);
+    sf::FloatRect tb=txt.getLocalBounds(); txt.setOrigin(tb.left+tb.width/2.f,tb.top+tb.height/2.f);
+    txt.setPosition(node->position+sf::Vector2f(radius,radius)); window.draw(txt);
+
+    sf::Text bf; bf.setFont(font); bf.setString("bf:"+std::to_string(getBalance(node)));
+    bf.setCharacterSize(static_cast<unsigned int>(std::max(8.f, 12 * scaleFactor))); bf.setFillColor(sf::Color(200,200,100));
+    bf.setPosition(node->position.x+radius-10*std::max(0.6f, scaleFactor), node->position.y - radius - 5.f); window.draw(bf);
+
+    drawNode(window, node->left,  hlValues, hlColor, pivotValue, unbalancedValue);
+    drawNode(window, node->right, hlValues, hlColor, pivotValue, unbalancedValue);
+}
+
+
+void AVLTree::draw(sf::RenderWindow& window) {
+    sf::Text title; title.setFont(font); title.setString("AVL Tree");
+    title.setCharacterSize(24); title.setFillColor(sf::Color::White); title.setPosition(300,10); window.draw(title);
+
+    std::vector<int> hlValues;
+    sf::Color hlColor(220,180,0);
+    int pVal = -1;
+    int uVal = -1;
+    if (animStep >= 0 && animStep < (int)animSteps.size()) {
+        hlValues = animSteps[animStep].highlightedValues;
+        hlColor  = animSteps[animStep].highlightColor;
+        pVal     = animSteps[animStep].pivotValue;
+        uVal     = animSteps[animStep].unbalancedValue;
+        sf::Text msg; msg.setFont(font); 
+        msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
+        msg.setCharacterSize(17); msg.setFillColor(sf::Color(200,230,255)); msg.setPosition(300,40); window.draw(msg);
+        
+        sf::Text sc; sc.setFont(font); sc.setString("Step "+std::to_string(animStep+1)+"/"+std::to_string((int)animSteps.size()));
+        sc.setCharacterSize(14); sc.setFillColor(sf::Color(160,160,160)); sc.setPosition(300,60); window.draw(sc);
+    }
+
+    drawNode(window, root, hlValues, hlColor, pVal, uVal);
+    for (auto& b : buttons) b.draw(window);
+    for (auto& t : textInputs) t.draw(window);
+}
+
+void AVLTree::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
+    for (auto& b : buttons) b.handleEvent(event, window);
+    for (auto& t : textInputs) t.handleEvent(event, window);
+}
+
+void AVLTree::init(const std::vector<int>& data) {
+    deleteTree(root); root = nullptr; 
+    float rootX = 250.f + ((winW - 250.f) / 2.f);
+    for (int i=0; i<(int)data.size(); ++i) root = insertNode(root, data[i], sf::Vector2f(rootX, 50.f));
+}
+void AVLTree::insert(int value) { 
+    float rootX = 250.f + ((winW - 250.f) / 2.f);
+    root = insertNode(root, value, sf::Vector2f(rootX, 50.f)); 
+}
+void AVLTree::remove(int value) { root = removeNode(root, value); }
+
+void AVLTree::onResize(float w, float h) {
+    winW = w; winH = h;
+    initUI();
 }

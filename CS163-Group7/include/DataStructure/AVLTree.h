@@ -60,14 +60,13 @@ private:
                   const std::vector<int>& hlValues, sf::Color hlColor,
                   int pivotValue = -1, int unbalancedValue = -1);
 
-    // Step-by-step animation
     struct VisualStep {
         std::vector<int> highlightedValues;
         std::string message;
         sf::Color highlightColor = sf::Color(220, 180, 0);
-        int pivotValue = -1;       // Node about which we rotate
-        int unbalancedValue = -1;  // Node that became unbalanced
-        SimNode* treeSnapshot = nullptr; // Captured state of the tree
+        int pivotValue = -1;       
+        int unbalancedValue = -1;  
+        SimNode* treeSnapshot = nullptr; 
     };
     std::vector<VisualStep> animSteps;
     std::map<int, TreeNode*> nodeCache;
