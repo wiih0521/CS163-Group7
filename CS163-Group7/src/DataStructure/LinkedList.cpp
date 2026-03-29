@@ -242,7 +242,7 @@ void LinkedList::update(float dt) {
 }
 
 void LinkedList::draw(sf::RenderWindow& window) {
-    sf::Text title; title.setFont(font); title.setString("Singly Linked List");
+    sf::Text title; title.setFont(font); title.setString("Linked List");
     title.setCharacterSize(24); title.setFillColor(sf::Color::White); title.setPosition(300, 10);
     window.draw(title);
 
