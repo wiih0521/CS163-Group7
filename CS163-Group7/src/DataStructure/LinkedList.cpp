@@ -87,3 +87,143 @@ void LinkedList::remove(int index) {
         nodes[i].targetPosition = sf::Vector2f(startX + i * 100.f, winH / 2.f - 50.f);
     }
 }
+
+void LinkedList::beginInsertSteps(int value, int idx) {
+    animSteps.clear(); commitOp = nullptr; isPlaying = false; playTimer = 0.f;
+    if (idx < 0) idx = 0;
+    if (idx > (int)nodes.size()) idx = (int)nodes.size();
+
+    if (!isStepByStep) {
+        insert(value, idx);
+        VisualStep s; s.message = "Inserted " + std::to_string(value) + " at index " + std::to_string(idx) + " (Run at Once)";
+        s.highlightColor = sf::Color(0, 200, 80);
+        if (idx < (int)nodes.size()) s.highlighted = {idx};
+        animSteps.push_back(s);
+        animStep = 0;
+        return;
+    }
+
+    for (int i = 0; i < idx && i < (int)nodes.size(); ++i) {
+        VisualStep s; s.highlighted = {i};
+        s.message = "Traversing to index " + std::to_string(idx) + "→ at node[" + std::to_string(i) + "] = " + std::to_string(nodes[i].value);
+        animSteps.push_back(s);
+    }
+    VisualStep fin; fin.highlighted = {idx};
+    fin.message = "Will insert " + std::to_string(value) + " at index " + std::to_string(idx);
+    fin.highlightColor = sf::Color(0, 200, 80);
+    animSteps.push_back(fin);
+
+    VisualStep done; done.highlighted = {idx};
+    done.message = "Inserted " + std::to_string(value) + " at index " + std::to_string(idx) + "!";
+    done.highlightColor = sf::Color(0, 200, 80);
+    animSteps.push_back(done);
+
+    commitOp = [this, value, idx]() { insert(value, idx); };
+    animStep = 0;
+    isPlaying = true;
+}
+
+void LinkedList::beginDeleteSteps(int idx) {
+    animSteps.clear(); commitOp = nullptr; isPlaying = false; playTimer = 0.f;
+    if (idx < 0 || idx >= (int)nodes.size()) return;
+    int value = nodes[idx].value;
+
+    if (!isStepByStep) {
+        remove(idx);
+        VisualStep s; s.message = "Deleted node at index " + std::to_string(idx) + " with value " + std::to_string(value) + " (Run at Once)";
+        s.highlightColor = sf::Color(220, 60, 60);
+        animSteps.push_back(s);
+        animStep = 0;
+        return;
+    }
+
+    for (int i = 0; i <= idx && i < (int)nodes.size(); ++i) {
+        VisualStep s; s.highlighted = {i};
+        if (i < idx) s.message = "Searching for index " + std::to_string(idx) + " — at node[" + std::to_string(i) + "] = " + std::to_string(nodes[i].value);
+        else { s.message = "Found node[" + std::to_string(idx) + "] = " + std::to_string(value) + ". Removing..."; s.highlightColor = sf::Color(220, 60, 60); }
+        animSteps.push_back(s);
+    }
+
+    VisualStep done;
+    done.message = "Deleted node at index " + std::to_string(idx) + "!";
+    done.highlightColor = sf::Color(220, 60, 60);
+    animSteps.push_back(done);
+
+    commitOp = [this, idx]() { remove(idx); };
+    animStep = 0;
+    isPlaying = true;
+}
+
+void LinkedList::beginSearchSteps(int value) {
+    animSteps.clear(); commitOp = nullptr; isPlaying = false; playTimer = 0.f;
+    bool found = false;
+    int foundIdx = -1;
+
+    if (!isStepByStep) {
+        for (int i = 0; i < (int)nodes.size(); ++i) {
+            if (nodes[i].value == value) { found = true; foundIdx = i; break; }
+        }
+        VisualStep s;
+        if (found) {
+            s.message = "Found " + std::to_string(value) + " at index " + std::to_string(foundIdx) + "! (Run at Once)";
+            s.highlightColor = sf::Color(0, 200, 80);
+            s.highlighted = {foundIdx};
+        } else {
+            s.message = std::to_string(value) + " not found in the list. (Run at Once)";
+            s.highlightColor = sf::Color(220, 60, 60);
+        }
+        animSteps.push_back(s);
+        animStep = 0;
+        return;
+    }
+
+    for (int i = 0; i < (int)nodes.size(); ++i) {
+        VisualStep s; s.highlighted = {i};
+        if (nodes[i].value == value) {
+            s.message = "Found " + std::to_string(value) + " at index " + std::to_string(i) + "!";
+            s.highlightColor = sf::Color(0, 200, 80);
+            animSteps.push_back(s);
+            found = true;
+            foundIdx = i;
+            break;
+        } else {
+            s.message = "Searching for " + std::to_string(value) + " — current node is " + std::to_string(nodes[i].value);
+            animSteps.push_back(s);
+        }
+    }
+
+    VisualStep done;
+    if (found) {
+        done.message = "Search finished! Found at index " + std::to_string(foundIdx);
+        done.highlightColor = sf::Color(0, 200, 80);
+        done.highlighted = {foundIdx};
+    } else {
+        VisualStep s; s.message = std::to_string(value) + " not found in the list.";
+        s.highlightColor = sf::Color(220, 60, 60);
+        animSteps.push_back(s);
+        done.message = "Search finished! Not found.";
+        done.highlightColor = sf::Color(220, 60, 60);
+    }
+    animSteps.push_back(done);
+
+    animStep = 0;
+    isPlaying = true;
+}
+
+void LinkedList::play()  { isPlaying = true; playTimer = 0.f; }
+void LinkedList::pause() { isPlaying = false; }
+
+void LinkedList::stepForward() {
+    if (animStep < 0 || animSteps.empty()) return;
+    if (animStep + 1 < (int)animSteps.size()) {
+        animStep++;
+        if (animStep == (int)animSteps.size() - 1) {
+            if (commitOp) { commitOp(); commitOp = nullptr; }
+            isPlaying = false;
+        }
+    } else {
+        isPlaying = false;
+    }
+}
+
+void LinkedList::stepBackward() { if (animStep > 0) animStep--; }
