@@ -227,3 +227,91 @@ void LinkedList::stepForward() {
 }
 
 void LinkedList::stepBackward() { if (animStep > 0) animStep--; }
+
+void LinkedList::update(float dt) {
+    for (auto& n : nodes) {
+        if (std::isnan(n.position.x) || std::isnan(n.position.y)) n.position = sf::Vector2f(350.f, -50.f);
+        if (std::isnan(n.targetPosition.x) || std::isnan(n.targetPosition.y)) n.targetPosition = sf::Vector2f(350.f, 300.f);
+        n.position.x += (n.targetPosition.x - n.position.x) * 12.f * dt;
+        n.position.y += (n.targetPosition.y - n.position.y) * 12.f * dt;
+    }
+    if (isPlaying && animStep >= 0) {
+        playTimer += dt;
+        if (playTimer >= playInterval) { playTimer = 0.f; stepForward(); }
+    }
+}
+
+void LinkedList::draw(sf::RenderWindow& window) {
+    sf::Text title; title.setFont(font); title.setString("Singly Linked List");
+    title.setCharacterSize(24); title.setFillColor(sf::Color::White); title.setPosition(300, 10);
+    window.draw(title);
+
+    if (animStep >= 0 && animStep < (int)animSteps.size()) {
+        sf::Text msg; msg.setFont(font);
+        msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
+        msg.setCharacterSize(17); msg.setFillColor(sf::Color(200, 230, 255)); msg.setPosition(300, 40);
+        window.draw(msg);
+        sf::Text sc; sc.setFont(font);
+        sc.setString("Step " + std::to_string(animStep + 1) + "/" + std::to_string((int)animSteps.size()));
+        sc.setCharacterSize(14); sc.setFillColor(sf::Color(160, 160, 160)); sc.setPosition(300, 60);
+        window.draw(sc);
+    }
+
+    float radius = 25.f;
+    for (size_t i = 0; i < nodes.size(); ++i) {
+        if (i < nodes.size() - 1) {
+            sf::Vector2f s = nodes[i].position + sf::Vector2f(radius, radius);
+            sf::Vector2f e = nodes[i+1].position + sf::Vector2f(radius, radius);
+            sf::Vector2f d = e - s; float len = std::sqrt(d.x*d.x + d.y*d.y);
+            if (len > radius * 2) {
+                d /= len; s += d*radius; e -= d*radius; len -= radius*2.f;
+                sf::RectangleShape line(sf::Vector2f(len, 2.f));
+                line.setPosition(s); line.setFillColor(sf::Color::White);
+                float angle = std::atan2(d.y, d.x)*180.f/3.14159f; line.setRotation(angle);
+                window.draw(line);
+                sf::ConvexShape arr(3); arr.setPoint(0,{0,0}); arr.setPoint(1,{-10,5}); arr.setPoint(2,{-10,-5});
+                arr.setFillColor(sf::Color::White); arr.setPosition(e); arr.setRotation(angle);
+                window.draw(arr);
+            }
+        }
+        sf::Color fillColor(0, 120, 215);
+        if (animStep >= 0 && animStep < (int)animSteps.size()) {
+            for (int hi : animSteps[animStep].highlighted)
+                if (hi == (int)i) { fillColor = animSteps[animStep].highlightColor; break; }
+        }
+        sf::CircleShape circle(radius); circle.setPosition(nodes[i].position);
+        circle.setFillColor(fillColor); circle.setOutlineThickness(2.f); circle.setOutlineColor(sf::Color::White);
+        window.draw(circle);
+
+        sf::Text txt; txt.setFont(font); txt.setString(std::to_string(nodes[i].value));
+        txt.setCharacterSize(20); txt.setFillColor(sf::Color::White);
+        sf::FloatRect tb = txt.getLocalBounds(); txt.setOrigin(tb.left+tb.width/2.f, tb.top+tb.height/2.f);
+        txt.setPosition(nodes[i].position + sf::Vector2f(radius, radius)); window.draw(txt);
+
+        sf::Text idx; idx.setFont(font); idx.setString(std::to_string(i));
+        idx.setCharacterSize(14); idx.setFillColor(sf::Color(200,200,200));
+        idx.setPosition(nodes[i].position.x+radius-5, nodes[i].position.y+radius*2.f+5);
+        window.draw(idx);
+    }
+    for (auto& b : buttons) b.draw(window);
+    for (auto& t : textInputs) t.draw(window);
+}
+
+void LinkedList::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
+    for (auto& b : buttons) b.handleEvent(event, window);
+    for (auto& t : textInputs) t.handleEvent(event, window);
+}
+
+void LinkedList::updateNode(int index, int newValue) {}
+
+void LinkedList::onResize(float w, float h) {
+    winW = w; winH = h;
+    initUI();
+    if (!nodes.empty()) {
+        float totalWidth = nodes.size() * 100.f;
+        float startX = 250.f + ((winW - 250.f - totalWidth) / 2.f);
+        for (size_t i = 0; i < nodes.size(); ++i) {
+            nodes[i].targetPosition = sf::Vector2f(startX + i * 100.f, winH / 2.f - 50.f);
+        }
+    }
+}
