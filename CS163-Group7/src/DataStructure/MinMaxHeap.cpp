@@ -148,6 +148,7 @@ void MinMaxHeap::beginExtractSteps() {
     if (rawData.empty()) return;
     animSteps.clear(); commitOp = nullptr; isPlaying = false; playTimer = 0.f;
 
+    // Run instantly
     if (!isStepByStep) {
         extract();
         VisualStep s; s.message = "Extracted root (Run at Once)";
@@ -160,36 +161,47 @@ void MinMaxHeap::beginExtractSteps() {
     int rootVal = rawData[0];
     int lastIdx = (int)rawData.size() - 1;
 
+    // Signal that the root is being extracted
     { VisualStep s; s.highlighted = {0};
       s.message = "Extracting root: "+std::to_string(rootVal);
       s.highlightColor = sf::Color(220,60,60); animSteps.push_back(s); }
 
     if (lastIdx > 0) {
-        VisualStep s; s.highlighted = {0, lastIdx};
+        VisualStep s; 
+        s.highlighted = {0, lastIdx};
         s.message = "Moving last element ["+std::to_string(rawData[lastIdx])+"] to root position";
         animSteps.push_back(s);
     }
 
+    // Heapify down
     std::vector<int> sim = rawData;
-    sim[0] = sim.back(); sim.pop_back();
+    sim[0] = sim.back(); 
+    sim.pop_back();
     int n = (int)sim.size(), si = 0;
     while (true) {
         int left=2*si+1, right=2*si+2, target=si;
         if (left<n && (isMinHeap ? sim[left]<sim[target] : sim[left]>sim[target])) target=left;
         if (right<n && (isMinHeap ? sim[right]<sim[target] : sim[right]>sim[target])) target=right;
         if (target != si) {
-            VisualStep s; s.highlighted = {si, target};
+            VisualStep s; 
+            s.highlighted = {si, target};
             s.message = "HeapifyDown: ["+std::to_string(si)+"]="+std::to_string(sim[si])+" → swap with ["+std::to_string(target)+"]="+std::to_string(sim[target]);
             animSteps.push_back(s);
-            std::swap(sim[si], sim[target]); si = target;
+            std::swap(sim[si], sim[target]); 
+            si = target;
         } else {
-            VisualStep s; s.highlighted = {si};
+            VisualStep s; 
+            s.highlighted = {si};
             s.message = "Heap property satisfied. Done!";
-            s.highlightColor = sf::Color(0,200,80); animSteps.push_back(s); break;
+            s.highlightColor = sf::Color(0,200,80); 
+            animSteps.push_back(s); 
+            break;
         }
     }
     
-    VisualStep done; done.message = "Extracted root!";
+    // Save
+    VisualStep done; 
+    done.message = "Extracted root!";
     done.highlightColor = sf::Color(220, 60, 60);
     animSteps.push_back(done);
 
