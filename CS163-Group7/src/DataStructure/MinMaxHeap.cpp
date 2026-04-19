@@ -220,12 +220,19 @@ void MinMaxHeap::beginSearchSteps(int value) {
 
     auto canContain = [&](int val) { return isMinHeap ? (val <= value) : (val >= value); };
 
+    // Run instantly
     if (!isStepByStep) {
         std::vector<int> stack;
         if (!rawData.empty() && canContain(rawData[0])) stack.push_back(0);
         while (!stack.empty()) {
-            int idx = stack.back(); stack.pop_back();
-            if (rawData[idx] == value) { found = true; foundIdx = idx; break; }
+            int idx = stack.back(); 
+            stack.pop_back();
+
+            if (rawData[idx] == value) { 
+                found = true; 
+                foundIdx = idx; 
+                break; 
+            }
             int right = 2 * idx + 2;
             int left = 2 * idx + 1;
             if (right < (int)rawData.size() && canContain(rawData[right])) stack.push_back(right);
@@ -246,22 +253,28 @@ void MinMaxHeap::beginSearchSteps(int value) {
         return;
     }
 
+    // Traversing the tree using stack
     std::vector<int> stack;
     if (!rawData.empty()) {
         if (canContain(rawData[0])) {
-            stack.push_back(0);
+            stack.push_back(0);// If the root's value satisfies, push it to stack
         } else {
-            VisualStep s; s.highlighted = {0}; s.highlightColor = sf::Color(200, 150, 0);
+            // Stop immediately if the condition isn't met
+            VisualStep s; 
+            s.highlighted = {0}; 
+            s.highlightColor = sf::Color(200, 150, 0);
             s.message = "Root is " + std::to_string(rawData[0]) + ", impossible to find " + std::to_string(value) + " below it. Pruned!";
             animSteps.push_back(s);
         }
     }
 
     while (!stack.empty()) {
-        int idx = stack.back(); stack.pop_back();
+        int idx = stack.back(); 
+        stack.pop_back();
 
-        VisualStep s; s.highlighted = {idx};
-        if (rawData[idx] == value) {
+        VisualStep s; 
+        s.highlighted = {idx};
+        if (rawData[idx] == value) {// Found the node
             s.message = "Found " + std::to_string(value) + " at index " + std::to_string(idx) + "!";
             s.highlightColor = sf::Color(0, 200, 80);
             animSteps.push_back(s);
@@ -276,11 +289,15 @@ void MinMaxHeap::beginSearchSteps(int value) {
         int right = 2 * idx + 2;
         int left = 2 * idx + 1;
 
+        // Check and push child nodes into stack if they met the condition
         if (right < (int)rawData.size()) {
             if (canContain(rawData[right])) {
                 stack.push_back(right);
             } else {
-                VisualStep ps; ps.highlighted = {right}; ps.highlightColor = sf::Color(200, 150, 0);
+                VisualStep ps; 
+                ps.highlighted = {right}; 
+                ps.highlightColor = sf::Color(200, 150, 0);
+
                 ps.message = "Pruning right child " + std::to_string(rawData[right]) + " (impossible to contain " + std::to_string(value) + ")";
                 animSteps.push_back(ps);
             }
@@ -289,81 +306,129 @@ void MinMaxHeap::beginSearchSteps(int value) {
             if (canContain(rawData[left])) {
                 stack.push_back(left);
             } else {
-                VisualStep ps; ps.highlighted = {left}; ps.highlightColor = sf::Color(200, 150, 0);
+                VisualStep ps; 
+                ps.highlighted = {left}; 
+                ps.highlightColor = sf::Color(200, 150, 0);
+
                 ps.message = "Pruning left child " + std::to_string(rawData[left]) + " (impossible to contain " + std::to_string(value) + ")";
                 animSteps.push_back(ps);
             }
         }
     }
     
+    // Record the final result into animStep
     VisualStep done;
     if (found) {
         done.message = "Search finished! Found at index " + std::to_string(foundIdx);
         done.highlightColor = sf::Color(0, 200, 80);
         done.highlighted = {foundIdx};
     } else {
-        VisualStep s; s.message = std::to_string(value) + " not found in the heap.";
+        VisualStep s; 
+        s.message = std::to_string(value) + " not found in the heap.";
         s.highlightColor = sf::Color(220, 60, 60);
         animSteps.push_back(s);
         done.message = "Search finished! Not found.";
         done.highlightColor = sf::Color(220, 60, 60);
     }
     animSteps.push_back(done);
-
     animStep = 0;
     isPlaying = true;
 }
 
-void MinMaxHeap::play()  { isPlaying = true; playTimer = 0.f; }
-void MinMaxHeap::pause() { isPlaying = false; }
+// Control functions (Next, prev, play, pause)
+void MinMaxHeap::play()  { 
+    isPlaying = true; 
+    playTimer = 0.f; 
+}
+void MinMaxHeap::pause() { 
+    isPlaying = false; 
+}
 void MinMaxHeap::stepForward() {
     if (animStep < 0 || animSteps.empty()) return;
     if (animStep + 1 < (int)animSteps.size()) {
         animStep++;
         if (animStep == (int)animSteps.size() - 1) {
-            if (commitOp) { commitOp(); commitOp = nullptr; }
+            if (commitOp) { 
+                commitOp(); 
+                commitOp = nullptr; 
+            }
             isPlaying = false;
         }
     } else {
         isPlaying = false;
     }
 }
-void MinMaxHeap::stepBackward() { if (animStep > 0) animStep--; }
+void MinMaxHeap::stepBackward() { 
+    if (animStep > 0) animStep--; 
+}
 
+// Update loop (runs every frame)
 void MinMaxHeap::update(float dt) {
+    // Momvement effect (Linear Interpolation - Lerp): Smoothly pull current position to targetPosition
+    // Formula: pos = pos + (target - pos) * speed * delta_time
     for (auto& n : nodes) {
         n.position.x += (n.targetPosition.x - n.position.x) * 12.f * dt;
         n.position.y += (n.targetPosition.y - n.position.y) * 12.f * dt;
     }
-    if (isPlaying && animStep >= 0) { playTimer += dt; if (playTimer >= playInterval) { playTimer = 0.f; stepForward(); } }
+
+    // Automatically jump to the next animation step over time (if Playing)
+    if (isPlaying && animStep >= 0) { 
+        playTimer += dt; 
+        if (playTimer >= playInterval) { 
+            playTimer = 0.f; 
+            stepForward(); 
+        } 
+    }
 }
 
+// Draw to screen
 void MinMaxHeap::draw(sf::RenderWindow& window) {
     float radius = 22.f;
 
+    // Draw the text message of the current step at the top of the screen
     if (animStep >= 0 && animStep < (int)animSteps.size()) {
-        sf::Text msg; msg.setFont(font); 
+        sf::Text msg; 
+        msg.setFont(font); 
         msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
-        msg.setCharacterSize(17); msg.setFillColor(sf::Color(200,230,255)); msg.setPosition(300,40); window.draw(msg);
-        sf::Text sc; sc.setFont(font); sc.setString("Step "+std::to_string(animStep+1)+"/"+std::to_string((int)animSteps.size()));
-        sc.setCharacterSize(14); sc.setFillColor(sf::Color(160,160,160)); sc.setPosition(300,60); window.draw(sc);
+        msg.setCharacterSize(17); 
+        msg.setFillColor(sf::Color(200,230,255)); 
+        msg.setPosition(300,40); 
+        window.draw(msg);
+        sf::Text sc; 
+        sc.setFont(font); 
+        sc.setString("Step "+std::to_string(animStep+1)+"/"+std::to_string((int)animSteps.size()));
+        sc.setCharacterSize(14); 
+        sc.setFillColor(sf::Color(160,160,160)); 
+        sc.setPosition(300,60); 
+        window.draw(sc);
     }
 
+    // Draw edges between nodes
+    // We must draw the lines first so they sit underneath the node circles
     for (size_t i = 0; i < nodes.size(); ++i) {
         auto drawLine = [&](size_t child) {
             if (child >= nodes.size()) return;
             sf::Vector2f s = nodes[i].position + sf::Vector2f(radius,radius);
             sf::Vector2f e = nodes[child].position + sf::Vector2f(radius,radius);
-            sf::Vector2f d = e - s; float len = std::sqrt(d.x*d.x+d.y*d.y);
+            sf::Vector2f d = e - s; 
+            float len = std::sqrt(d.x*d.x+d.y*d.y);
             if (len > radius*2) {
-                d/=len; s+=d*radius; e-=d*radius; len-=radius*2.f;
-                sf::RectangleShape line(sf::Vector2f(len,2.f)); line.setPosition(s);
-                line.setFillColor(sf::Color(150,150,150)); line.setRotation(std::atan2(d.y,d.x)*180.f/3.14159f); window.draw(line);
+                d/=len; 
+                s+=d*radius; 
+                e-=d*radius; 
+                len-=radius*2.f;
+                sf::RectangleShape line(sf::Vector2f(len,2.f)); 
+                line.setPosition(s);
+                line.setFillColor(sf::Color(150,150,150)); 
+                line.setRotation(std::atan2(d.y,d.x)*180.f/3.14159f); 
+                window.draw(line);
             }
         };
-        drawLine(2*i+1); drawLine(2*i+2);
+        drawLine(2*i+1); // Connect to left child
+        drawLine(2*i+2); // Connect to right child
     }
 
+    // Draw nodes (Circle + Number inside + Index array outside)
     for (size_t i = 0; i < nodes.size(); ++i) {
         sf::Color fillColor = isMinHeap ? sf::Color(0,150,100) : sf::Color(150,0,100);
         if (animStep >= 0 && animStep < (int)animSteps.size()) {
@@ -371,20 +436,45 @@ void MinMaxHeap::draw(sf::RenderWindow& window) {
             if (!step.highlighted.empty() && step.highlighted[0] == (int)i) fillColor = step.highlightColor;
             else if (step.highlighted.size() > 1 && step.highlighted[1] == (int)i) fillColor = step.highlightColor2;
         }
-        sf::CircleShape circle(radius); circle.setPosition(nodes[i].position);
-        circle.setFillColor(fillColor); circle.setOutlineThickness(2.f); circle.setOutlineColor(sf::Color::White); window.draw(circle);
-        sf::Text txt; txt.setFont(font); txt.setString(std::to_string(nodes[i].value));
-        txt.setCharacterSize(18); txt.setFillColor(sf::Color::White);
-        sf::FloatRect tb = txt.getLocalBounds(); txt.setOrigin(tb.left+tb.width/2.f, tb.top+tb.height/2.f);
-        txt.setPosition(nodes[i].position + sf::Vector2f(radius,radius)); window.draw(txt);
-        sf::Text id; id.setFont(font); id.setString("["+std::to_string(i)+"]");
-        id.setCharacterSize(12); id.setFillColor(sf::Color(200,200,200));
-        id.setPosition(nodes[i].position.x+radius-10, nodes[i].position.y-20); window.draw(id);
+        // Circle
+        sf::CircleShape circle(radius); 
+        circle.setPosition(nodes[i].position);
+        circle.setFillColor(fillColor); 
+        circle.setOutlineThickness(2.f); 
+        circle.setOutlineColor(sf::Color::White); 
+        window.draw(circle);
+
+        // The value inside the node
+        sf::Text txt; 
+        txt.setFont(font); 
+        txt.setString(std::to_string(nodes[i].value));
+        txt.setCharacterSize(18); 
+        txt.setFillColor(sf::Color::White);
+        sf::FloatRect tb = txt.getLocalBounds(); 
+        txt.setOrigin(tb.left+tb.width/2.f, tb.top+tb.height/2.f);
+        txt.setPosition(nodes[i].position + sf::Vector2f(radius,radius)); 
+        window.draw(txt);
+
+        // Array id
+        sf::Text id; 
+        id.setFont(font); 
+        id.setString("["+std::to_string(i)+"]");
+        id.setCharacterSize(12); 
+        id.setFillColor(sf::Color(200,200,200));
+        id.setPosition(nodes[i].position.x+radius-10, nodes[i].position.y-20); 
+        window.draw(id);
     }
 
-    sf::Text modeText; modeText.setFont(font); modeText.setString(isMinHeap ? "Min Heap" : "Max Heap");
-    modeText.setCharacterSize(24); modeText.setFillColor(sf::Color::White); modeText.setPosition(300,10); window.draw(modeText);
+    // Mode : min heap or max heap
+    sf::Text modeText; 
+    modeText.setFont(font); 
+    modeText.setString(isMinHeap ? "Min Heap" : "Max Heap");
+    modeText.setCharacterSize(24); 
+    modeText.setFillColor(sf::Color::White); 
+    modeText.setPosition(300,10); 
+    window.draw(modeText);
 
+    // Draw UI
     for (auto& b : buttons) b.draw(window);
     for (auto& t : textInputs) t.draw(window);
 }
