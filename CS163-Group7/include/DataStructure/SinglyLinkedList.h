@@ -25,8 +25,6 @@ public:
     void init(const std::vector<int>& data);
     void insert(int value, int index);
     void remove(int index);
-    void search(int value);
-    void updateNode(int index, int newValue);
 
 private:
     struct Node {
@@ -54,8 +52,10 @@ private:
     float playTimer = 0.f;
     std::function<void()> commitOp;
 
-    void beginInsertSteps(int value, int idx);
-    void beginDeleteSteps(int idx);
-    void beginSearchSteps(int value);
-    void beginUpdateSteps(int idx, int newValue);
+    void insertSteps(int value, int idx);
+    void deleteSteps(int idx);
+    void searchSteps(int value);
+    void updateSteps(int idx, int newValue);
+    void prepareNewOperation();
+    void finalizeOperation(std::function<void()> finalCommit);
 };

@@ -8,57 +8,57 @@
 
 class App {
 public:
-    App();
-    ~App();
-    void run();
+	App();
+	~App();
+	void run();
 
 private:
-    void processEvents();
-    void update(float dt);
-    void render();
-    void initUI();
-    void buildMainMenu();
+	void processEvents();
+	void update(float dt);
+	void render();
+	void initUI();
+	void buildMainMenu();
 
-    sf::RenderWindow window;
-    std::unique_ptr<DataStructure> currentDS;
-    sf::Clock deltaClock;
-    bool uiNeedsUpdate = false;
-    bool isStepMode = true;
-    bool showExitConfirm = false;
+	sf::RenderWindow window;
+	std::unique_ptr<DataStructure> currentDS;
+	sf::Clock deltaClock;
+	bool uiNeedsUpdate = false;
+	bool isStepMode = true;
+	bool showExitConfirm = false;
 
-    enum class AppState { MAIN_MENU, VISUALIZER };
-    AppState currentState = AppState::MAIN_MENU;
+	enum class AppState { MAIN_MENU, VISUALIZER };
+	AppState currentState = AppState::MAIN_MENU;
 
-    float windowWidth;
-    float windowHeight;
-    
-    sf::Font font;
-    
-    enum class Category {
-        LINKED_LIST,
-        HEAP,
-        TREE,
-        GRAPH
-    };
-    Category activeCategory;
-    
-    enum class DSType {
-        NONE,
-        SINGLY_LINKED_LIST,
-        MIN_MAX_HEAP,
-        AVL_TREE,
-        KRUSKAL_MST,
-        PRIM_MST
-    };
-    DSType activeDS;
+	float windowWidth;
+	float windowHeight;
 
-    std::vector<Button> categoryButtons;
-    std::vector<Button> dsButtons;
-    std::vector<Button> controlButtons;
-    std::vector<Button> exitConfirmButtons;
-    std::vector<Button> mainMenuButtons;
-    std::unique_ptr<Button> backButton;
-    std::unique_ptr<Slider> speedSlider;
-    
-    sf::RectangleShape sidebar;
+	sf::Font font;
+
+	enum class Category {
+		LINKED_LIST,
+		HEAP,
+		TREE,
+		GRAPH
+	};
+	Category activeCategory;
+
+	enum class DSType {
+		NONE,
+		SINGLY_LINKED_LIST,
+		MIN_MAX_HEAP,
+		AVL_TREE,
+		KRUSKAL_MST,
+		PRIM_MST
+	};
+	DSType activeDS;
+
+	std::vector<Button> categoryButtons;
+	std::vector<Button> dsButtons;
+	std::vector<Button> controlButtons;
+	std::vector<Button> exitConfirmButtons;
+	std::vector<Button> mainMenuButtons;
+	std::unique_ptr<Button> backButton;
+	std::unique_ptr<Slider> speedSlider;
+
+	sf::RectangleShape sidebar;
 };

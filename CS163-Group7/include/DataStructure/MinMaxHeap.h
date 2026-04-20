@@ -60,9 +60,11 @@ private:
     float playTimer = 0.f;
     std::function<void()> commitOp;
 
-    void beginInsertSteps(int value);
-    void beginExtractSteps();
-    void beginDeleteAtSteps(int idx);
-    void beginSearchSteps(int value);
-    void beginUpdateSteps(int idx, int newValue);
+    void insertSteps(int value);
+    void extractSteps();
+    void deleteAtSteps(int idx);
+    void searchSteps(int value);
+    void updateSteps(int idx, int newValue);
+    void prepareNewOperation();
+    void finalizeOperation(std::function<void()> finalCommit);
 };
