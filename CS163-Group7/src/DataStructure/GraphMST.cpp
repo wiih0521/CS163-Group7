@@ -44,71 +44,63 @@ void GraphMST::initUI() {
     buttons.clear();
     textInputs.clear();
 
-    float uiY1 = winH - 160.f;
-    float uiY2 = winH - 120.f;
+    float visualAreaCenter = 200.f + (winW - 200.f - codePaneWidth) / 2.f;
+    float uiY1 = winH - 100.f;
+    float uiY2 = winH - 60.f;
 
-    // --- Add Node ---
-    textInputs.push_back(TextInput(sf::Vector2f(60, 30), sf::Vector2f(300, uiY1), font, "Node ID"));
-    buttons.push_back(Button(sf::Vector2f(100, 30), sf::Vector2f(300, uiY2), "Add Node", font, [this]() {
-        std::string s = textInputs[0].getText();
-        if (!s.empty()) addNode(std::stoi(s));
+    // Total Width Roughly 650px
+    float startX = visualAreaCenter - 325.f;
+    if (startX < 210.f) startX = 210.f;
+
+    // Add Node
+    textInputs.push_back(TextInput(sf::Vector2f(60, 30), sf::Vector2f(startX, uiY1), font, "ID"));
+    buttons.push_back(Button(sf::Vector2f(80, 30), sf::Vector2f(startX, uiY2), "Add Node", font, [this]() {
+        std::string s = textInputs[0].getText(); if (!s.empty()) addNode(std::stoi(s));
     }));
 
-    // --- Add Edge ---
-    textInputs.push_back(TextInput(sf::Vector2f(40, 30), sf::Vector2f(410, uiY1), font, "From"));
-    textInputs.push_back(TextInput(sf::Vector2f(40, 30), sf::Vector2f(460, uiY1), font, "To"));
-    textInputs.push_back(TextInput(sf::Vector2f(40, 30), sf::Vector2f(510, uiY1), font, "Wt"));
-    buttons.push_back(Button(sf::Vector2f(100, 30), sf::Vector2f(410, uiY2), "Add Edge", font, [this]() {
-        std::string fs = textInputs[1].getText();
-        std::string ts = textInputs[2].getText();
-        std::string ws = textInputs[3].getText();
-        if (!fs.empty() && !ts.empty() && !ws.empty())
-            addEdge(std::stoi(fs), std::stoi(ts), std::stoi(ws));
+    // Add Edge
+    textInputs.push_back(TextInput(sf::Vector2f(35, 30), sf::Vector2f(startX + 90, uiY1), font, "Fr"));
+    textInputs.push_back(TextInput(sf::Vector2f(35, 30), sf::Vector2f(startX + 130, uiY1), font, "To"));
+    textInputs.push_back(TextInput(sf::Vector2f(35, 30), sf::Vector2f(startX + 170, uiY1), font, "Wt"));
+    buttons.push_back(Button(sf::Vector2f(90, 30), sf::Vector2f(startX + 90, uiY2), "Add Edge", font, [this]() {
+        std::string fs = textInputs[1].getText(), ts = textInputs[2].getText(), ws = textInputs[3].getText();
+        if (!fs.empty() && !ts.empty() && !ws.empty()) addEdge(std::stoi(fs), std::stoi(ts), std::stoi(ws));
     }));
 
-    // --- Random Graph ---
-    buttons.push_back(Button(sf::Vector2f(120, 30), sf::Vector2f(520, uiY2), "Random Graph", font, [this]() {
-        clear();
-        int numNodes = 6;
-        for (int i = 0; i < numNodes; ++i) addNode(i);
-        // random edges
-        for (int i = 0; i < numNodes; ++i)
-            for (int j = i + 1; j < numNodes; ++j)
-                if (rand() % 2) addEdge(i, j, rand() % 20 + 1);
-        kruskalRunning = false;
-        kruskalDone = false;
-        primRunning = false;
-        primDone = false;
-        kruskalStep = 0;
-        primStep = 0;
-        for (auto& e : edges) { e.inMST = false; e.rejected = false; }
-    }));
-    
-    // --- Run MST ---
-    buttons.push_back(Button(sf::Vector2f(120, 30), sf::Vector2f(650, uiY2), (currentMode == GraphMST::AlgoMode::KRUSKAL ? "Run Kruskal" : "Run Prim"), font, [this]() {
-        if (currentMode == GraphMST::AlgoMode::KRUSKAL) runKruskal();
-        else runPrim();
+    // Random Graph
+    buttons.push_back(Button(sf::Vector2f(110, 30), sf::Vector2f(startX + 190, uiY2), "Random Graph", font, [this]() {
+        clear(); int numNodes = 6; for (int i = 0; i < numNodes; ++i) addNode(i);
+        for (int i = 0; i < numNodes; ++i) for (int j = i + 1; j < numNodes; ++j) if (rand() % 2) addEdge(i, j, rand() % 20 + 1);
+        kruskalRunning = primRunning = kruskalDone = primDone = false; kruskalStep = primStep = 0;
+        for (auto& e : edges) { e.inMST = e.rejected = false; }
     }));
 
-    // --- Step ---
-    buttons.push_back(Button(sf::Vector2f(80, 30), sf::Vector2f(780, uiY2), "Step", font, [this]() {
+    buttons.push_back(Button(sf::Vector2f(110, 30), sf::Vector2f(startX + 310, uiY2), (currentMode == GraphMST::AlgoMode::KRUSKAL ? "Run Kruskal" : "Run Prim"), font, [this]() {
+        if (currentMode == GraphMST::AlgoMode::KRUSKAL) runKruskal(); else runPrim();
+    }));
+
+    buttons.push_back(Button(sf::Vector2f(70, 30), sf::Vector2f(startX + 430, uiY2), "Step", font, [this]() {
         stepForward();
     }));
 
-    // --- Clear ---
-    buttons.push_back(Button(sf::Vector2f(80, 30), sf::Vector2f(870, uiY2), "Clear", font, [this]() {
+    buttons.push_back(Button(sf::Vector2f(70, 30), sf::Vector2f(startX + 510, uiY2), "Clear", font, [this]() {
         clear();
     }));
 }
 
 void GraphMST::addNode(int id) {
-    if (findNode(id) >= 0) return;
+    if (findNode(id) >= 0) return; // Check if node already exists
     GNode n;
     n.id = id;
     // Spread nodes in a circle in the canvas area
-    float cx = 250.f + ((winW - 250.f) / 2.f); 
-    float cy = winH / 2.f - 40.f;
-    float r = std::min((winW - 250.f)/3.f, (winH - 200.f)/3.f);
+    float visualAreaLeft = 200.f;
+    float visualAreaTop = 60.f;
+    float visualAreaWidth = winW - visualAreaLeft - codePaneWidth - 40.f; // 40.f padding
+    float visualAreaHeight = winH - visualAreaTop - 200.f; // 200.f padding for UI
+
+    float cx = visualAreaLeft + visualAreaWidth / 2.f; 
+    float cy = visualAreaTop + visualAreaHeight / 2.f;
+    float r = std::min(visualAreaWidth, visualAreaHeight) / 3.f;
     float angle = (float)nodes.size() * 1.2f; // rough spread
     n.position = sf::Vector2f(cx + r * std::cos(angle), cy + r * std::sin(angle));
     nodes.push_back(n);
@@ -167,11 +159,25 @@ void GraphMST::runKruskal() {
     kruskalDone = false;
     primRunning = false;
     
+    currentCode = {
+        "MST Kruskal(Edges edges, int n) {",     // 0
+        "  sort(edges.begin(), edges.end());",   // 1
+        "  UnionFind uf(n);",                    // 2
+        "  for (Edge& e : sortedEdges) {",       // 3
+        "    if (uf.find(e.u) != uf.find(e.v)) {", // 4
+        "      uf.unite(e.u, e.v);",             // 5
+        "      mst.add(e);",                     // 6
+        "    }",                                 // 7
+        "  }",                                   // 8
+        "}"                                      // 9
+    };
+    currentCodeLine = 1;
+
     if (!isStepByStep) {
         while (!kruskalDone) stepForward();
         kruskalRunning = false;
     } else {
-        isPlaying = true; // Auto play!
+        isPlaying = true;
     }
 }
 
@@ -180,6 +186,22 @@ void GraphMST::runPrim() {
     totalMSTWeight = 0;
     
     if (nodes.empty()) return;
+
+    currentCode = {
+        "MST Prim(Graph G) {",                   // 0
+        "  PriorityQueue pq;",                   // 1
+        "  pq.add(startingNodeEdges);",          // 2
+        "  while (!pq.empty()) {",               // 3
+        "    Edge e = pq.popMin();",             // 4
+        "    if (!visited[e.to]) {",             // 5
+        "      visited[e.to] = true;",           // 6
+        "      mst.add(e);",                     // 7
+        "      pq.add(newEdges);",               // 8
+        "    }",                                 // 9
+        "  }",                                   // 10
+        "}"                                      // 11
+    };
+    currentCodeLine = 1;
 
     primVisited.assign(nodes.size(), false);
     primEdges.clear();
@@ -217,6 +239,7 @@ void GraphMST::stepForward() {
         int fi = findNode(se.from);
         int ti = findNode(se.to);
 
+        currentCodeLine = 4; // if (uf.find(e.u) != uf.find(e.v))
         if (fi >= 0 && ti >= 0 && uf.unite(fi, ti)) {
             se.inMST = true;
             totalMSTWeight += se.weight;
@@ -226,6 +249,7 @@ void GraphMST::stepForward() {
                     e.inMST = true; break;
                 }
             }
+            currentCodeLine = 5; // uf.unite
         } else {
             se.rejected = true;
             for (auto& e : edges) {
@@ -233,6 +257,7 @@ void GraphMST::stepForward() {
                     e.rejected = true; break;
                 }
             }
+            // stayed on line 4
         }
 
         kruskalStep++;
@@ -261,27 +286,21 @@ void GraphMST::stepForward() {
         int fi = findNode(se.from);
         int ti = findNode(se.to);
 
-        // If one is visited and the other isn't, add to MST
+        currentCodeLine = 5; // if (!visited[e.to])
+
         if (fi >= 0 && ti >= 0 && (primVisited[fi] ^ primVisited[ti])) {
-            totalMSTWeight += se.weight;
             int newVisitedIdx = primVisited[fi] ? ti : fi;
             primVisited[newVisitedIdx] = true;
+            totalMSTWeight += se.weight;
+            currentCodeLine = 6; // visited = true
 
             for (auto& e : edges) {
                 if (e.from == se.from && e.to == se.to && e.weight == se.weight) {
                     e.inMST = true; break;
                 }
             }
-
-            // Add new crossing edges
-            for (const auto& e : edges) {
-                int ef = findNode(e.from);
-                int et = findNode(e.to);
-                if ((ef == newVisitedIdx || et == newVisitedIdx) && (primVisited[ef] ^ primVisited[et])) {
-                    // Check if already in primEdges to avoid duplicates (optional, Prim's can handle duplicates)
-                    primEdges.push_back(e);
-                }
-            }
+            // currentCodeLine = 7; // mst.add
+            // currentCodeLine = 8; // pq.add
         } else {
             // Both visited, reject
             for (auto& e : edges) {
@@ -313,6 +332,12 @@ int GraphMST::findNode(int id) {
 }
 
 void GraphMST::applyForceLayout(float dt) {
+    float k = 0.05f; // spring constant
+    float c = 5000.f; // repulsion
+    
+    float rootX = 250.f + ((winW - 250.f - codePaneWidth) / 2.f);
+    float rootY = winH / 2.f;
+
     for (size_t i = 0; i < nodes.size(); ++i) {
         sf::Vector2f force(0, 0);
         for (size_t j = 0; j < nodes.size(); ++j) {
@@ -340,7 +365,7 @@ void GraphMST::applyForceLayout(float dt) {
             }
         }
         // Center gravity toward canvas center
-        float cx = 250.f + ((winW - 250.f) / 2.f);
+        float cx = 250.f + ((winW - 250.f - codePaneWidth) / 2.f);
         float cy = winH / 2.f - 40.f;
         sf::Vector2f center(cx, cy);
         force += (center - nodes[i].position) * 0.05f;
@@ -349,7 +374,7 @@ void GraphMST::applyForceLayout(float dt) {
 
         // Clamp to canvas area
         float minX = 280.f;
-        float maxX = winW - 40.f;
+        float maxX = winW - codePaneWidth - 40.f;
         float minY = 60.f;
         float maxY = winH - 200.f;
 
@@ -407,23 +432,28 @@ void GraphMST::update(float dt) {
 void GraphMST::draw(sf::RenderWindow& window) {
     float nodeR = 20.f;
 
+    float visualAreaLeft = 200.f;
+    float visualAreaTop = 10.f; // Top of the visual area for text
+    float visualAreaWidth = winW - visualAreaLeft - codePaneWidth;
+
     // Title
     sf::Text title;
     title.setFont(font);
     title.setString(currentMode == GraphMST::AlgoMode::KRUSKAL ? "MST - Kruskal's Algorithm" : "MST - Prim's Algorithm");
     title.setCharacterSize(24);
     title.setFillColor(sf::Color::White);
-    title.setPosition(300, 10);
+    title.setPosition(visualAreaLeft + 50.f, visualAreaTop);
     window.draw(title);
 
     // Status text
+    sf::Text status;
+    status.setFont(font);
+    status.setCharacterSize(18);
+    status.setPosition(visualAreaLeft + 50.f, visualAreaTop + 30.f);
+
     if (kruskalDone || primDone) {
-        sf::Text status;
-        status.setFont(font);
         status.setString("MST Complete! Total Weight: " + std::to_string(totalMSTWeight));
-        status.setCharacterSize(18);
         status.setFillColor(sf::Color(100, 255, 150));
-        status.setPosition(300, 40);
         window.draw(status);
     } else if (kruskalRunning || primRunning) {
         sf::Text status;
@@ -482,7 +512,7 @@ void GraphMST::draw(sf::RenderWindow& window) {
 
     // Graph Edge Info list (step view)
     if (kruskalRunning || kruskalDone) {
-        float listX = 300.f, listY = 70.f;
+        float listX = visualAreaLeft + 50.f, listY = 70.f;
         sf::Text header;
         header.setFont(font);
         header.setString("Sorted Edges (Kruskal):");
@@ -509,7 +539,7 @@ void GraphMST::draw(sf::RenderWindow& window) {
             window.draw(et);
         }
     } else if (primRunning || primDone) {
-        float listX = 300.f, listY = 70.f;
+        float listX = visualAreaLeft + 50.f, listY = 70.f;
         sf::Text header;
         header.setFont(font);
         header.setString("Cut Edges (Prim):");
@@ -553,5 +583,9 @@ void GraphMST::stepBackward() {}
 
 void GraphMST::onResize(float w, float h) {
     winW = w; winH = h;
+    codePaneWidth = w / 6.0f;
     initUI();
 }
+
+std::vector<std::string> GraphMST::getCode() const { return currentCode; }
+int GraphMST::getCurrentLine() const { return currentCodeLine; }

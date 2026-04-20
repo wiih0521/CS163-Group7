@@ -23,6 +23,9 @@ public:
     void stepBackward() override;
     void onResize(float w, float h) override;
 
+    std::vector<std::string> getCode() const override;
+    int getCurrentLine() const override;
+
     void addNode(int id);
     void addEdge(int from, int to, int weight);
     void clear();
@@ -71,6 +74,8 @@ private:
 
     bool isPlaying   = false;
     float playTimer  = 0.f;
+    std::vector<std::string> currentCode;
+    int currentCodeLine = -1;
 
     sf::Font font;
     std::vector<Button> buttons;

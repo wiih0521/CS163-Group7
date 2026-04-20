@@ -29,6 +29,7 @@ private:
     float windowHeight;
     
     sf::Font font;
+    sf::Font monoFont;
     
     enum class Category {
         LINKED_LIST,
@@ -58,4 +59,6 @@ private:
     void buildDSButtons();
     
     sf::RectangleShape sidebar;
+    sf::RectangleShape codePane;
+    float codePaneWidth;
 };
