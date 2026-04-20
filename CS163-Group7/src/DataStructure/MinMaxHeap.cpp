@@ -527,6 +527,7 @@ void MinMaxHeap::extract() {
     recalculateTargetPositions();
 }
 
+// Tree coordinate calculation (to prevent overlapping)
 void MinMaxHeap::recalculateTargetPositions() {
     if (nodes.empty()) return;
     int maxDepth = (int)std::log2(nodes.size());
@@ -545,6 +546,7 @@ void MinMaxHeap::recalculateTargetPositions() {
 
 static bool cmp(int a, int b, bool isMin) { return isMin ? a < b : a > b; }
 
+// Heapify up
 void MinMaxHeap::heapifyUp(int index) {
     while (index > 0) {
         int parent = (index-1)/2;
@@ -556,6 +558,7 @@ void MinMaxHeap::heapifyUp(int index) {
     }
 }
 
+// Heapify down
 void MinMaxHeap::heapifyDown(int index) {
     int size = (int)rawData.size();
     while (true) {
@@ -570,6 +573,7 @@ void MinMaxHeap::heapifyDown(int index) {
     }
 }
 
+// Change the window size
 void MinMaxHeap::onResize(float w, float h) {
     winW = w; winH = h;
     initUI();
