@@ -479,35 +479,50 @@ void MinMaxHeap::draw(sf::RenderWindow& window) {
     for (auto& t : textInputs) t.draw(window);
 }
 
+// Handle input event
 void MinMaxHeap::handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
     for (auto& b : buttons) b.handleEvent(event, window);
     for (auto& t : textInputs) t.handleEvent(event, window);
 }
 
-void MinMaxHeap::init(const std::vector<int>& data) { rawData = data; buildHeap(); }
-
+// Build a heap from an array
+void MinMaxHeap::init(const std::vector<int>& data) { 
+    rawData = data; 
+    buildHeap(); 
+}
 void MinMaxHeap::buildHeap() {
     nodes.clear();
     float rootX = 250.f + ((winW - 250.f) / 2.f);
     
     for (size_t i = 0; i < rawData.size(); ++i) {
-        Node n; n.value = rawData[i]; n.position = sf::Vector2f(rootX, winH + 100.f); nodes.push_back(n);
+        Node n; 
+        n.value = rawData[i]; 
+        n.position = sf::Vector2f(rootX, winH + 100.f); 
+        nodes.push_back(n);
     }
     for (int i = (int)rawData.size()/2 - 1; i >= 0; --i) heapifyDown(i);
     recalculateTargetPositions();
 }
 
+// Insert a new value
 void MinMaxHeap::insert(int value) {
     rawData.push_back(value);
     float rootX = 250.f + ((winW - 250.f) / 2.f);
-    Node n; n.value = value; n.position = sf::Vector2f(rootX, winH + 100.f); nodes.push_back(n);
-    heapifyUp((int)rawData.size()-1); recalculateTargetPositions();
+    Node n; 
+    n.value = value; 
+    n.position = sf::Vector2f(rootX, winH + 100.f); 
+    nodes.push_back(n);
+    heapifyUp((int)rawData.size()-1); // Heapify up
+    recalculateTargetPositions();
 }
 
+// Delete the root (pop out the max/min value in the heap)
 void MinMaxHeap::extract() {
     if (rawData.empty()) return;
-    rawData[0] = rawData.back(); rawData.pop_back();
-    nodes[0] = nodes.back(); nodes.pop_back();
+    rawData[0] = rawData.back(); 
+    rawData.pop_back();
+    nodes[0] = nodes.back(); 
+    nodes.pop_back();
     if (!rawData.empty()) heapifyDown(0);
     recalculateTargetPositions();
 }
