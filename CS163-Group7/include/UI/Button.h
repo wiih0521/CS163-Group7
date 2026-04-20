@@ -12,6 +12,7 @@ public:
     void setPosition(const sf::Vector2f& position);
     void setText(const std::string& text);
     void setActive(bool active);
+    void setEnabled(bool enabled);
     
 private:
     sf::RectangleShape shape;
@@ -20,6 +21,7 @@ private:
     bool isHovered;
     bool isPressed;
     bool isActive;
+    bool isEnabled = true;
     
     sf::Color normalColor;
     sf::Color hoverColor;

@@ -1,12 +1,14 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "UI/CodeHighlight.h"
 
 class DataStructure {
 protected:
+    CodeHighlight codeViewer;
     bool isStepByStep = true;
     float winW = 1280.f;
     float winH = 720.f;
-    float playInterval = 0.6f;
+    float playInterval = 0.2f;
 public:
     virtual ~DataStructure() = default;
     virtual void update(float dt) = 0;
@@ -16,7 +18,16 @@ public:
     virtual void pause() = 0;
     virtual void stepForward() = 0;
     virtual void stepBackward() = 0;
-    virtual void setStepMode(bool step) { isStepByStep = step; }
-    virtual void setPlayInterval(float interval) { playInterval = interval; }
-    virtual void onResize(float w, float h) { winW = w; winH = h; }
+    virtual void setStepMode(bool step) {
+        isStepByStep = step;
+    }
+
+    virtual void setPlayInterval(float interval) {
+        playInterval = interval;
+    }
+
+    virtual void onResize(float w, float h) {
+        winW = w;
+        winH = h;
+    }
 };

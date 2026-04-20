@@ -1,6 +1,5 @@
 #pragma once
 #include "DataStructure.h"
-#include <SFML/Graphics.hpp>
 #include <vector>
 #include <functional>
 #include <memory>
@@ -9,10 +8,10 @@
 #include "UI/TextInput.h"
 #include "UI/InputDialog.h"
 
-class MinMaxHeap : public DataStructure {
+class SinglyLinkedList : public DataStructure {
 public:
-    MinMaxHeap(float windowWidth = 1280.f, float windowHeight = 720.f);
-    ~MinMaxHeap() override;
+    SinglyLinkedList(float windowWidth = 1280.f, float windowHeight = 720.f);
+    ~SinglyLinkedList() override;
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window) override;
@@ -24,9 +23,10 @@ public:
     void onResize(float w, float h) override;
 
     void init(const std::vector<int>& data);
-    void insert(int value);
-    void extract();
-    void buildHeap();
+    void insert(int value, int index);
+    void remove(int index);
+    void search(int value);
+    void updateNode(int index, int newValue);
 
 private:
     struct Node {
@@ -34,24 +34,18 @@ private:
         sf::Vector2f position;
         sf::Vector2f targetPosition;
     };
-    std::vector<int> rawData;
     std::vector<Node> nodes;
-    bool isMinHeap = true;
 
     sf::Font font;
     std::vector<Button> buttons;
     std::vector<TextInput> textInputs;
     std::unique_ptr<InputDialog> activeDialog;
     void initUI();
-    void recalculateTargetPositions();
-    void heapifyUp(int index);
-    void heapifyDown(int index);
 
     struct VisualStep {
-        std::vector<int> highlighted;   
+        std::vector<int> highlighted;
         std::string message;
-        sf::Color highlightColor  = sf::Color(220, 180, 0);
-        sf::Color highlightColor2 = sf::Color(100, 180, 255);
+        sf::Color highlightColor = sf::Color(220, 180, 0); 
         std::vector<int> highlightedCodeLines;
     };
     std::vector<VisualStep> animSteps;
@@ -60,9 +54,8 @@ private:
     float playTimer = 0.f;
     std::function<void()> commitOp;
 
-    void beginInsertSteps(int value);
-    void beginExtractSteps();
-    void beginDeleteAtSteps(int idx);
+    void beginInsertSteps(int value, int idx);
+    void beginDeleteSteps(int idx);
     void beginSearchSteps(int value);
     void beginUpdateSteps(int idx, int newValue);
 };

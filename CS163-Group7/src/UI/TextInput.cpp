@@ -1,8 +1,7 @@
 #include "UI/TextInput.h"
 
 TextInput::TextInput(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Font& font, const std::string& placeholder)
-    : isFocused(false), isHovered(false)
-{
+    : isFocused(false), isHovered(false) {
     normalColor = sf::Color(30, 30, 30);
     hoverColor = sf::Color(50, 50, 50);
     focusedColor = sf::Color(40, 40, 40);
@@ -30,7 +29,7 @@ TextInput::TextInput(const sf::Vector2f& size, const sf::Vector2f& position, con
 void TextInput::draw(sf::RenderWindow& window) {
     if (isFocused) {
         shape.setFillColor(focusedColor);
-        shape.setOutlineColor(sf::Color(0, 120, 215));
+        shape.setOutlineColor(sf::Color(0, 120, 215)); 
     } else if (isHovered) {
         shape.setFillColor(hoverColor);
         shape.setOutlineColor(sf::Color(150, 150, 150));
@@ -45,7 +44,10 @@ void TextInput::draw(sf::RenderWindow& window) {
         window.draw(placeholderText);
     } else {
         std::string displayStr = inputString;
-        if (isFocused) displayStr += "_";
+
+        if (isFocused)
+            displayStr += "_"; 
+
         textDisplay.setString(displayStr);
         window.draw(textDisplay);
     }
@@ -57,13 +59,11 @@ bool TextInput::handleEvent(const sf::Event& event, const sf::RenderWindow& wind
 
     bool contains = shape.getGlobalBounds().contains(mousePosF);
     
-    if (event.type == sf::Event::MouseMoved) {
+    if (event.type == sf::Event::MouseMoved)
         isHovered = contains;
-    }
     
-    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)
         isFocused = contains;
-    }
     
     if (isFocused && event.type == sf::Event::TextEntered) {
         if (event.text.unicode == 8 && !inputString.empty()) {
@@ -71,7 +71,7 @@ bool TextInput::handleEvent(const sf::Event& event, const sf::RenderWindow& wind
             return true;
         }
 
-        else if (event.text.unicode >= 32 && event.text.unicode < 128) {
+        if (event.text.unicode >= 32 && event.text.unicode < 128) {
             inputString += static_cast<char>(event.text.unicode);
             return true;
         }

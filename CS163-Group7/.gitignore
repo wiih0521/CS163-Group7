@@ -5,6 +5,7 @@
 /Release/
 /x64/
 
+
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
@@ -37,3 +38,5 @@ compile_commands.json
 *.recipe
 *.log
 *.lastbuildstate
+
+generate_ds.py
