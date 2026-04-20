@@ -21,10 +21,5 @@ public:
     virtual void stepBackward() = 0;
     virtual void setStepMode(bool step) { isStepByStep = step; }
     virtual void setPlayInterval(float interval) { playInterval = interval; }
-    virtual void initUI() = 0;
-    virtual void onResize(float w, float h) { winW = w; winH = h; codePaneWidth = w / 6.0f; initUI(); }
-
-    // Code display support
-    virtual std::vector<std::string> getCode() const { return {}; }
-    virtual int getCurrentLine() const { return -1; }
+    virtual void onResize(float w, float h) { winW = w; winH = h; }
 };

@@ -14,8 +14,6 @@ AVLTree::~AVLTree() { clearAnimSteps(); deleteTree(root); }
 
 void AVLTree::deleteTree(TreeNode* n) {
     if (!n) return; deleteTree(n->left); deleteTree(n->right); 
-    // Do NOT delete if it might be in nodeCache? Actually deleteTree is for real root.
-    // We should probably clear nodeCache too.
     delete n;
 }
 
@@ -46,26 +44,23 @@ void AVLTree::initUI() {
     buttons.push_back(Button(sf::Vector2f(120,30), sf::Vector2f(startX + 130, uiY2), "Init Random", font, [this]() {
         std::vector<int> r; for (int i=0;i<10;++i) r.push_back(rand()%100); init(r);
     }));
-
-    textInputs.push_back(TextInput(sf::Vector2f(90,30), sf::Vector2f(startX + 260, uiY1), font, "Value"));
-    buttons.push_back(Button(sf::Vector2f(90,30), sf::Vector2f(startX + 260, uiY2), "Insert", font, [this]() {
+    textInputs.push_back(TextInput(sf::Vector2f(60,30), sf::Vector2f(560, uiY1), font, "Value"));
+    buttons.push_back(Button(sf::Vector2f(120,30), sf::Vector2f(560, uiY2), "Insert", font, [this]() {
         std::string v = textInputs[1].getText(); if (!v.empty()) beginInsertSteps(std::stoi(v));
     }));
-
-    buttons.push_back(Button(sf::Vector2f(110,30), sf::Vector2f(startX + 360, uiY2), "Add Random", font, [this]() {
+    buttons.push_back(Button(sf::Vector2f(110,30), sf::Vector2f(690, uiY2), "Add Random", font, [this]() {
         beginInsertSteps(rand()%100);
     }));
-
-    textInputs.push_back(TextInput(sf::Vector2f(90,30), sf::Vector2f(startX + 480, uiY1), font, "Value"));
-    buttons.push_back(Button(sf::Vector2f(90,30), sf::Vector2f(startX + 480, uiY2), "Delete", font, [this]() {
+    textInputs.push_back(TextInput(sf::Vector2f(60,30), sf::Vector2f(810, uiY1), font, "Value"));
+    buttons.push_back(Button(sf::Vector2f(120,30), sf::Vector2f(810, uiY2), "Delete", font, [this]() {
         std::string v = textInputs[2].getText(); if (!v.empty()) beginDeleteSteps(std::stoi(v));
     }));
-
-    textInputs.push_back(TextInput(sf::Vector2f(90,30), sf::Vector2f(startX + 580, uiY1), font, "Value"));
-    buttons.push_back(Button(sf::Vector2f(90,30), sf::Vector2f(startX + 580, uiY2), "Search", font, [this]() {
+    textInputs.push_back(TextInput(sf::Vector2f(60,30), sf::Vector2f(940, uiY1), font, "Value"));
+    buttons.push_back(Button(sf::Vector2f(90,30), sf::Vector2f(940, uiY2), "Search", font, [this]() {
         std::string v = textInputs[3].getText(); if (!v.empty()) beginSearchSteps(std::stoi(v));
     }));
 }
+
 
 AVLTree::SimNode* AVLTree::copySimTree(SimNode* node) {
     if (!node) return nullptr;
@@ -120,24 +115,23 @@ void AVLTree::insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
     
     if (!node) {
         *nodeRef = new SimNode{value, 1, nullptr, nullptr};
-        takeSnapshot("Node is nullptr: Creating new leaf node " + std::to_string(value), {value}, sf::Color(0, 200, 80), -1, -1, 2);
+        takeSnapshot("Leaf reached: Inserting " + std::to_string(value) + " here.", {value}, sf::Color(0, 200, 80));
         return;
     }
 
-    takeSnapshot("Checking if " + std::to_string(value) + " < " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0), -1, -1, 4);
-    
+    takeSnapshot("Insert " + std::to_string(value) + ": looking at " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0));
+
     if (value < node->value) {
         insertNodeSim(&(node->left), value, steps, rootRef);
+    } else if (value > node->value) {
+        insertNodeSim(&(node->right), value, steps, rootRef);
     } else {
-        takeSnapshot("Checking if " + std::to_string(value) + " > " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0), -1, -1, 6);
-        if (value > node->value) {
-            insertNodeSim(&(node->right), value, steps, rootRef);
-        } else {
-            takeSnapshot(std::to_string(value) + " already exists!", {node->value}, sf::Color(255, 60, 60), -1, -1, 9);
-            return;
-        }
+        takeSnapshot(std::to_string(value) + " already exists!", {node->value}, sf::Color(255, 60, 60));
+        return;
+    }
     }
 
+    
     node = *nodeRef;
     node->height = 1 + std::max(getSimHeight(node->left), getSimHeight(node->right));
     takeSnapshot("Updating height for " + std::to_string(node->value), {node->value}, sf::Color(0, 150, 255), -1, -1, 11);
@@ -145,46 +139,44 @@ void AVLTree::insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
     int bal = getSimBalance(node);
     takeSnapshot("Checking balance of " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0), -1, -1, 12);
 
-    // LL
-    takeSnapshot("Checking LL case...", {node->value}, sf::Color(220, 180, 0), -1, -1, 13);
+    takeSnapshot("Checking balance of " + std::to_string(node->value) + " (bf=" + std::to_string(bal) + ")", {node->value}, sf::Color(220, 180, 0));
+
+    
     if (bal > 1 && value < (node->left ? node->left->value : -1e9)) {
         int oldVal = node->value; int pivotVal = node->left->value;
         *nodeRef = rotateRightSim(*nodeRef);
-        takeSnapshot("Performing Right Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 14);
+        takeSnapshot("Performing Right Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
-    // RR
-    takeSnapshot("Checking RR case...", {node->value}, sf::Color(220, 180, 0), -1, -1, 16);
+    
     if (bal < -1 && value > (node->right ? node->right->value : 1e9)) {
         int oldVal = node->value; int pivotVal = node->right->value;
         *nodeRef = rotateLeftSim(*nodeRef);
-        takeSnapshot("Performing Left Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 17);
+        takeSnapshot("Performing Left Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
-    // LR
-    takeSnapshot("Checking LR case...", {node->value}, sf::Color(220, 180, 0), -1, -1, 19);
+    
     if (bal > 1 && value > (node->left ? node->left->value : 1e9)) {
         int childVal = node->left->value;
         node->left = rotateLeftSim(node->left);
-        takeSnapshot("LR Case: Double Rotation (Part 1 - Rotate Child Left)", {node->left->value}, sf::Color(255, 150, 100), -1, -1, 20);
+        takeSnapshot("Left-Right Case: First rotating left on child " + std::to_string(childVal), {node->left->value}, sf::Color(255, 150, 100));
         
-        node = *nodeRef; // Refresh after child rotation
+        node = *nodeRef; 
         int oldVal = node->value; int pivotVal = node->left->value;
         *nodeRef = rotateRightSim(*nodeRef);
-        takeSnapshot("LR Case: Double Rotation (Part 2 - Rotate Node Right)", {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 21);
+        takeSnapshot("Left-Right Case: Now rotating right on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
-    // RL
-    takeSnapshot("Checking RL case...", {node->value}, sf::Color(220, 180, 0), -1, -1, 23);
+    
     if (bal < -1 && value < (node->right ? node->right->value : -1e9)) {
         int childVal = node->right->value;
         node->right = rotateRightSim(node->right);
-        takeSnapshot("RL Case: Double Rotation (Part 1 - Rotate Child Right)", {node->right->value}, sf::Color(255, 150, 100), -1, -1, 24);
+        takeSnapshot("Right-Left Case: First rotating right on child " + std::to_string(childVal), {node->right->value}, sf::Color(255, 150, 100));
         
-        node = *nodeRef; // Refresh after child rotation
+        node = *nodeRef; 
         int oldVal = node->value; int pivotVal = node->right->value;
         *nodeRef = rotateLeftSim(*nodeRef);
-        takeSnapshot("RL Case: Double Rotation (Part 2 - Rotate Node Left)", {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 25);
+        takeSnapshot("Right-Left Case: Now rotating left on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
         return;
     }
     
@@ -193,7 +185,7 @@ void AVLTree::insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
 }
 
 void AVLTree::removeNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep>& steps, SimNode** rootRef) {
-    auto takeSnapshot = [&](const std::string& msg, const std::vector<int>& hl, sf::Color clr, int pivot = -1, int unbal = -1, int line = -1) {
+    auto takeSnapshot = [&](const std::string& msg, const std::vector<int>& hl, sf::Color clr, int pivot = -1, int unbal = -1) {
         VisualStep s; s.message = msg; s.highlightedValues = hl; s.highlightColor = clr;
         s.pivotValue = pivot; s.unbalancedValue = unbal;
         s.treeSnapshot = copySimTree(*rootRef);
@@ -205,84 +197,78 @@ void AVLTree::removeNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
     takeSnapshot("Checking if node is nullptr", {}, sf::Color(220, 180, 0), -1, -1, 1);
     if (!node) return;
 
-    takeSnapshot("Checking if " + std::to_string(value) + " < " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0), -1, -1, 4);
+    takeSnapshot("Delete " + std::to_string(value) + ": looking at " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0));
+
     if (value < node->value) {
         removeNodeSim(&(node->left), value, steps, rootRef);
+    } else if (value > node->value) {
+        removeNodeSim(&(node->right), value, steps, rootRef);
     } else {
-        takeSnapshot("Checking if " + std::to_string(value) + " > " + std::to_string(node->value), {node->value}, sf::Color(220, 180, 0), -1, -1, 6);
-        if (value > node->value) {
-            removeNodeSim(&(node->right), value, steps, rootRef);
-        } else {
-            // Found node to delete
-            takeSnapshot("Found " + std::to_string(value) + "! Preparing to remove...", {node->value}, sf::Color(255, 60, 60), -1, -1, 8);
+        VisualStep s; s.message = "Found " + std::to_string(value) + "! Removing node...";
+        s.highlightColor = sf::Color(255, 60, 60);
+        s.highlightedValues = {node->value};
+        s.treeSnapshot = copySimTree(*rootRef);
+        steps.push_back(s);
 
             takeSnapshot("Checking number of children...", {node->value}, sf::Color(220, 180, 0), -1, -1, 9);
-            if (!node->left || !node->right) {
-                SimNode* t = node->left ? node->left : node->right;
-                takeSnapshot("Single child or leaf case. Examining child...", {node->value}, sf::Color(220, 180, 0), -1, -1, 10);
-                if (!t) {
-                    takeSnapshot("Leaf case: Removing node.", {node->value}, sf::Color(255, 60, 60), -1, -1, 11);
-                    *nodeRef = nullptr; delete node; return; 
-                } else { 
-                    SimNode* res = new SimNode{*t}; 
-                    *nodeRef = res; delete node; 
-                    takeSnapshot("Replacing node with its only child.", {res->value}, sf::Color(200, 100, 255), -1, -1, 14);
-                    return; 
-                }
-            } else {
-                takeSnapshot("Two children case: Finding successor...", {node->value}, sf::Color(220, 180, 0), -1, -1, 17);
-                SimNode* successor = minValueNodeSim(node->right);
-                int succVal = successor->value;
-                node->value = succVal;
-                takeSnapshot("Successor is " + std::to_string(succVal) + ". Replacing value.", {node->value}, sf::Color(0, 200, 80), -1, -1, 18);
-                removeNodeSim(&(node->right), succVal, steps, rootRef);
-                // node pointer was updated by its right child removal
-                node = *nodeRef;
+        if (!node->left || !node->right) {
+            SimNode* t = node->left ? node->left : node->right;
+            if (!t) { *nodeRef = nullptr; delete node; return; }
+            else { 
+                SimNode* res = new SimNode{*t}; 
+                *nodeRef = res; delete node; 
+                takeSnapshot("Replacing node with its child", {res->value}, sf::Color(200, 100, 255));
+                return; 
             }
+        } else {
+                takeSnapshot("Two children case: Finding successor...", {node->value}, sf::Color(220, 180, 0), -1, -1, 17);
+            SimNode* successor = minValueNodeSim(node->right);
+            int succVal = successor->value;
+            node->value = succVal;
+                takeSnapshot("Successor is " + std::to_string(succVal) + ". Replacing value.", {node->value}, sf::Color(0, 200, 80), -1, -1, 18);
+            removeNodeSim(&(node->right), succVal, steps, rootRef);
+            
+            node = *nodeRef;
         }
+    }
     }
 
     node = *nodeRef;
-    if (!node) {
-        // Highlight line 18: if (node == nullptr) return nullptr;
-        // steps.push_back(...) is tricky here since we already returned in base cases
-        return; 
-    }
-    
-    takeSnapshot("Checking if node is nullptr after deletion...", {node->value}, sf::Color(220, 180, 0), -1, -1, 22);
-
+    if (!node) return;
     node->height = 1 + std::max(getSimHeight(node->left), getSimHeight(node->right));
     takeSnapshot("Updating height and checking balance...", {node->value}, sf::Color(0, 150, 255), -1, -1, 25);
 
     int bal = getSimBalance(node);
     takeSnapshot("Checking balance (bf=" + std::to_string(bal) + ")", {node->value}, sf::Color(220, 180, 0), -1, -1, 26);
 
+    takeSnapshot("Checking balance of " + std::to_string(node->value) + " (bf=" + std::to_string(bal) + ")", {node->value}, sf::Color(220, 180, 0));
+
     if (bal > 1 && getSimBalance(node->left) >= 0) {
         int oldVal = node->value; int pivotVal = node->left->value;
         *nodeRef = rotateRightSim(*nodeRef);
-        takeSnapshot("Right Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 28);
+        takeSnapshot("Performing Right Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
     } else if (bal > 1 && getSimBalance(node->left) < 0) {
         int childVal = node->left->value;
         node->left = rotateLeftSim(node->left);
-        takeSnapshot("Double Rotation: Rotating left on child " + std::to_string(childVal), {node->left->value}, sf::Color(255, 150, 100), -1, -1, 31);
+        takeSnapshot("Double Rotation: Rotating left on child " + std::to_string(childVal), {node->left->value}, sf::Color(255, 150, 100));
         
         node = *nodeRef;
         int oldVal = node->value; int pivotVal = node->left->value;
         *nodeRef = rotateRightSim(*nodeRef);
-        takeSnapshot("Double Rotation: Now rotating right on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 32);
+        takeSnapshot("Double Rotation: Now rotating right on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
     } else if (bal < -1 && getSimBalance(node->right) <= 0) {
         int oldVal = node->value; int pivotVal = node->right->value;
         *nodeRef = rotateLeftSim(*nodeRef);
-        takeSnapshot("Left Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 35);
+        takeSnapshot("Performing Left Rotation on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
     } else if (bal < -1 && getSimBalance(node->right) > 0) {
         int childVal = node->right->value;
         node->right = rotateRightSim(node->right);
-        takeSnapshot("Double Rotation: Rotating right on child " + std::to_string(childVal), {node->right->value}, sf::Color(255, 150, 100), -1, -1, 38);
+        takeSnapshot("Double Rotation: Rotating right on child " + std::to_string(childVal), {node->right->value}, sf::Color(255, 150, 100));
         
         node = *nodeRef;
         int oldVal = node->value; int pivotVal = node->right->value;
         *nodeRef = rotateLeftSim(*nodeRef);
-        takeSnapshot("Double Rotation: Now rotating left on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal, 39);
+        takeSnapshot("Double Rotation: Now rotating left on " + std::to_string(oldVal), {oldVal, pivotVal}, sf::Color(255, 100, 100), pivotVal, oldVal);
     }
 }
 
@@ -290,7 +276,7 @@ AVLTree::SimNode* AVLTree::minValueNodeSim(SimNode* node) {
     SimNode* cur = node; while (cur->left) cur = cur->left; return cur;
 }
 
-// ---- applySimStructure ----
+
 void AVLTree::applySimStructure(SimNode* simRoot) {
     std::set<TreeNode*> usedNodes;
     auto sync = [&](auto self, SimNode* sn) -> TreeNode* {
@@ -298,18 +284,18 @@ void AVLTree::applySimStructure(SimNode* simRoot) {
         TreeNode* tn = nullptr;
         if (nodeCache.count(sn->value)) {
             tn = nodeCache[sn->value];
-            // Cycle/Duplicate prevention: if this cache node is already in use in this frame,
-            // (happens during transient states in deletion), create a temp node.
+            
+            
             if (usedNodes.count(tn)) {
                 tn = new TreeNode(sn->value);
-                // Position it near the original for smooth move
+                
                 tn->position = tn->targetPosition = nodeCache[sn->value]->position;
             } else {
                 usedNodes.insert(tn);
             }
         } else {
             tn = new TreeNode(sn->value);
-            float rootX = 200.f + ((winW - 200.f - codePaneWidth) / 2.f);
+            float rootX = 250.f + ((winW - 250.f) / 2.f);
             tn->position = tn->targetPosition = sf::Vector2f(rootX, 50.f);
             nodeCache[sn->value] = tn;
             usedNodes.insert(tn);
@@ -322,7 +308,7 @@ void AVLTree::applySimStructure(SimNode* simRoot) {
     root = sync(sync, simRoot);
 }
 
-// ---- Step helpers ----
+
 void AVLTree::beginInsertSteps(int value) {
     clearAnimSteps(); commitOp = nullptr; isPlaying = false; playTimer = 0.f; nodeCache.clear();
     
@@ -481,7 +467,7 @@ void AVLTree::beginDeleteSteps(int value) {
 
 void AVLTree::beginSearchSteps(int value) {
     animSteps.clear(); commitOp = nullptr; isPlaying = false; playTimer = 0.f;
-    
+
     currentCode = {
         "bool search(TreeNode* node, int value) {",  // 0
         "  if (node == nullptr) {",                   // 1
@@ -514,39 +500,18 @@ void AVLTree::beginSearchSteps(int value) {
     TreeNode* curr = root;
     bool found = false;
     while (curr) {
-        VisualStep s_check; s_check.highlightedValues = {curr->value};
-        s_check.message = "Checking if " + std::to_string(value) + " == " + std::to_string(curr->value);
-        s_check.codeLine = 4; // if (node->value == value)
-        animSteps.push_back(s_check);
-
-        if (value == curr->value) {
-            VisualStep s_found; s_found.highlightedValues = {curr->value};
-            s_found.message = "Found " + std::to_string(value) + "!";
-            s_found.highlightColor = sf::Color(0, 200, 80);
-            s_found.codeLine = 5;
-            animSteps.push_back(s_found);
-            found = true; break;
-        }
-
-        VisualStep s_comp; s_comp.highlightedValues = {curr->value};
-        s_comp.message = "Checking if " + std::to_string(value) + " < " + std::to_string(curr->value);
-        s_comp.codeLine = 7; // if (value < node->value)
-        animSteps.push_back(s_comp);
-
+        VisualStep s; s.highlightedValues = {curr->value};
         if (value < curr->value) {
-            VisualStep s_left; s_left.highlightedValues = {curr->value};
-            s_left.message = std::to_string(value) + " < " + std::to_string(curr->value) + " -> Left";
-            s_left.codeLine = 8;
-            animSteps.push_back(s_left);
-            curr = curr->left;
+            s.message = "Search "+std::to_string(value)+": "+std::to_string(value)+" < "+std::to_string(curr->value)+" -> go LEFT";
+            animSteps.push_back(s); curr = curr->left;
+        } else if (value > curr->value) {
+            s.message = "Search "+std::to_string(value)+": "+std::to_string(value)+" > "+std::to_string(curr->value)+" -> go RIGHT";
+            animSteps.push_back(s); curr = curr->right;
         } else {
-            VisualStep s_right; s_right.highlightedValues = {curr->value};
-            s_right.message = std::to_string(value) + " > " + std::to_string(curr->value) + " -> Right";
-            s_right.codeLine = 10;
-            animSteps.push_back(s_right);
-            curr = curr->right;
+            s.message = "Found "+std::to_string(value)+"!";
+            s.highlightColor = sf::Color(0,200,80); 
+            animSteps.push_back(s); found = true; break;
         }
-    }
 
     if (!found) {
         VisualStep s_null; s_null.message = "Leaf reached, " + std::to_string(value) + " not found.";
@@ -601,7 +566,7 @@ void AVLTree::stepBackward() {
     }
 }
 
-// ---- AVL ops ----
+
 int AVLTree::getHeight(TreeNode* n) { return n ? n->height : 0; }
 int AVLTree::getBalance(TreeNode* n) { return n ? getHeight(n->left)-getHeight(n->right) : 0; }
 
@@ -665,9 +630,10 @@ void AVLTree::calcPositions(TreeNode* n, int depth, float hs, float vs, float st
     calcPositions(n->right, depth + 1, hs, vs, startX, index);
 }
 
-// ---- update ----
+
 void AVLTree::update(float dt) {
-    float rootX = 200.f + ((winW - 200.f - codePaneWidth) / 2.f);
+    float rootX = 250.f + ((winW - 250.f) / 2.f);
+    
     
     // Count nodes for in-order layout
     int totalNodes = 0;
@@ -686,26 +652,26 @@ void AVLTree::update(float dt) {
     float requiredWidth = totalNodes * baseNodeGap;
     float requiredHeight = h * baseVerticalGap;
 
-    float availW = (winW - 200.f - codePaneWidth) * 0.95f;
+    float availW = (winW - 250.f) * 0.95f;
     float availH = (winH - 150.f) * 0.95f;
 
-    // Determine scale factor
+    
     float scaleW = (requiredWidth > 0) ? availW / requiredWidth : 1.0f;
     float scaleH = (requiredHeight > 0) ? availH / requiredHeight : 1.0f;
     scaleFactor = std::min({1.0f, scaleW, scaleH});
     
-    // Minimum scale to prevent microscopic nodes, but don't let it overflow TOO much
+    
     if (scaleFactor < 0.2f) scaleFactor = 0.2f;
 
     float hs = baseNodeGap * scaleFactor;
     float vs = baseVerticalGap * scaleFactor;
     
-    // If the scaled gap is too small for readable nodes, enforce a minimum
+    
     float minRadius = 14.f;
     if (hs < minRadius * 2.2f) hs = minRadius * 2.2f;
 
     float totalTreeWidth = totalNodes * hs;
-    float startX = 200.f + ((winW - 200.f - codePaneWidth - totalTreeWidth) / 2.f) + (hs / 2.f);
+    float startX = 250.f + ((winW - 250.f - totalTreeWidth) / 2.f) + (hs / 2.f);
 
     int index = 0;
     calcPositions(root, 0, hs, vs, startX - (hs/2.f), index);
@@ -722,20 +688,20 @@ void AVLTree::update(float dt) {
     if (isPlaying && animStep >= 0) { playTimer += dt; if (playTimer >= playInterval) { playTimer = 0.f; stepForward(); } }
 }
 
-// ---- drawNode ----
+
 void AVLTree::drawNode(sf::RenderWindow& window, TreeNode* node,
                        const std::vector<int>& hlValues, sf::Color hlColor,
                        int pivotValue, int unbalancedValue) {
     if (!node) return;
     float radius = std::max(14.f, 22.f * scaleFactor);
 
-    // Lines to children
+    
     auto drawLine = [&](TreeNode* child){
         if (!child) return;
         sf::Vector2f s=node->position+sf::Vector2f(radius,radius);
         sf::Vector2f e=child->position+sf::Vector2f(radius,radius);
         sf::Vector2f d=e-s; float len=std::sqrt(d.x*d.x+d.y*d.y);
-        if(len > 1.0f){ // Avoid division by zero
+        if(len > 1.0f){ 
             d/=len;
             sf::Vector2f start = s + d * radius;
             sf::Vector2f end = e - d * radius;
@@ -749,14 +715,14 @@ void AVLTree::drawNode(sf::RenderWindow& window, TreeNode* node,
     };
     drawLine(node->left); drawLine(node->right);
 
-    // Node color
+    
     bool isPivot = (pivotValue != -1 && node->value == pivotValue);
     bool isUnbalanced = (unbalancedValue != -1 && node->value == unbalancedValue);
     bool hl = std::find(hlValues.begin(), hlValues.end(), node->value) != hlValues.end();
 
-    sf::Color fill = sf::Color(0, 150, 80); // Default
-    if (isUnbalanced) fill = sf::Color(255, 80, 80); // Red
-    else if (isPivot) fill = sf::Color(80, 80, 255); // Blue
+    sf::Color fill = sf::Color(0, 150, 80); 
+    if (isUnbalanced) fill = sf::Color(255, 80, 80); 
+    else if (isPivot) fill = sf::Color(80, 80, 255); 
     else if (hl) fill = hlColor;
     
     sf::CircleShape circle(radius); circle.setPosition(node->position);
@@ -775,11 +741,11 @@ void AVLTree::drawNode(sf::RenderWindow& window, TreeNode* node,
     drawNode(window, node->right, hlValues, hlColor, pivotValue, unbalancedValue);
 }
 
-// ---- draw ----
+
 void AVLTree::draw(sf::RenderWindow& window) {
     float titleX = 200.f + 50.f; // Constant offset from sidebar
     sf::Text title; title.setFont(font); title.setString("AVL Tree");
-    title.setCharacterSize(24); title.setFillColor(sf::Color::White); title.setPosition(titleX, 10); window.draw(title);
+    title.setCharacterSize(24); title.setFillColor(sf::Color::White); title.setPosition(300,10); window.draw(title);
 
     std::vector<int> hlValues;
     sf::Color hlColor(220,180,0);
@@ -792,10 +758,10 @@ void AVLTree::draw(sf::RenderWindow& window) {
         uVal     = animSteps[animStep].unbalancedValue;
         sf::Text msg; msg.setFont(font); 
         msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
-        msg.setCharacterSize(17); msg.setFillColor(sf::Color(200,230,255)); msg.setPosition(titleX, 40); window.draw(msg);
+        msg.setCharacterSize(17); msg.setFillColor(sf::Color(200,230,255)); msg.setPosition(300,40); window.draw(msg);
         
         sf::Text sc; sc.setFont(font); sc.setString("Step "+std::to_string(animStep+1)+"/"+std::to_string((int)animSteps.size()));
-        sc.setCharacterSize(14); sc.setFillColor(sf::Color(160,160,160)); sc.setPosition(titleX, 60); window.draw(sc);
+        sc.setCharacterSize(14); sc.setFillColor(sf::Color(160,160,160)); sc.setPosition(300,60); window.draw(sc);
     }
 
     drawNode(window, root, hlValues, hlColor, pVal, uVal);
@@ -810,11 +776,11 @@ void AVLTree::handleEvent(const sf::Event& event, const sf::RenderWindow& window
 
 void AVLTree::init(const std::vector<int>& data) {
     deleteTree(root); root = nullptr; 
-    float rootX = 200.f + ((winW - 200.f - codePaneWidth) / 2.f);
+    float rootX = 250.f + ((winW - 250.f) / 2.f);
     for (int i=0; i<(int)data.size(); ++i) root = insertNode(root, data[i], sf::Vector2f(rootX, 50.f));
 }
 void AVLTree::insert(int value) { 
-    float rootX = 200.f + ((winW - 200.f - codePaneWidth) / 2.f);
+    float rootX = 250.f + ((winW - 250.f) / 2.f);
     root = insertNode(root, value, sf::Vector2f(rootX, 50.f)); 
 }
 void AVLTree::remove(int value) { root = removeNode(root, value); }
