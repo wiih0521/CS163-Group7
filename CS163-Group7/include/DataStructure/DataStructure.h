@@ -8,7 +8,7 @@ protected:
     bool isStepByStep = true;
     float winW = 1280.f;
     float winH = 720.f;
-    float playInterval = 0.2f;
+    float playInterval = 0.1f;
 public:
     virtual ~DataStructure() = default;
     virtual void update(float dt) = 0;

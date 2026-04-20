@@ -85,7 +85,7 @@ void App::initUI() {
 	const float sliderW = 200.f;
 	speedSlider = std::make_unique<Slider>(
 		sf::Vector2f(sliderW, 4), sf::Vector2f(leftControlsX, row3Y + 15.f), 0.1f,
-		2.0f, 0.2f, font, "Animation Speed");
+		2.0f, 0.1f, font, "Animation Speed");
 	speedSlider->setOnValueChange([this] (float val) {
 		if (currentDS)
 			currentDS->setPlayInterval(0.1f + 2.0f - val); // invert: right = faster

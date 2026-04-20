@@ -4,7 +4,8 @@
 /Debug/
 /Release/
 /x64/
-
+LinkedList.h
+LinkedList.cpp
 
 CMakeCache.txt
 CMakeFiles/
