@@ -2,9 +2,11 @@
 #include "DataStructure.h"
 #include <vector>
 #include <functional>
+#include <memory>
 #include <string>
 #include "UI/Button.h"
 #include "UI/TextInput.h"
+#include "UI/InputDialog.h"
 
 class SinglyLinkedList : public DataStructure {
 public:
@@ -19,9 +21,6 @@ public:
     void stepForward() override;
     void stepBackward() override;
     void onResize(float w, float h) override;
-
-    std::vector<std::string> getCode() const override;
-    int getCurrentLine() const override;
 
     void init(const std::vector<int>& data);
     void insert(int value, int index);
@@ -40,23 +39,23 @@ private:
     sf::Font font;
     std::vector<Button> buttons;
     std::vector<TextInput> textInputs;
+    std::unique_ptr<InputDialog> activeDialog;
     void initUI();
 
-    // Step-by-step animation
     struct VisualStep {
         std::vector<int> highlighted;
         std::string message;
-        sf::Color highlightColor = sf::Color(220, 180, 0); // yellow by default
-        int codeLine = -1;
+        sf::Color highlightColor = sf::Color(220, 180, 0); 
+        std::vector<int> highlightedCodeLines;
     };
     std::vector<VisualStep> animSteps;
     int animStep = -1;
     bool isPlaying = false;
     float playTimer = 0.f;
     std::function<void()> commitOp;
-    std::vector<std::string> currentCode;
 
     void beginInsertSteps(int value, int idx);
     void beginDeleteSteps(int idx);
     void beginSearchSteps(int value);
+    void beginUpdateSteps(int idx, int newValue);
 };

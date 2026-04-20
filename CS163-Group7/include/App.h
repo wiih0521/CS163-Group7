@@ -17,6 +17,7 @@ private:
     void update(float dt);
     void render();
     void initUI();
+    void buildMainMenu();
 
     sf::RenderWindow window;
     std::unique_ptr<DataStructure> currentDS;
@@ -24,12 +25,14 @@ private:
     bool uiNeedsUpdate = false;
     bool isStepMode = true;
     bool showExitConfirm = false;
-    
+
+    enum class AppState { MAIN_MENU, VISUALIZER };
+    AppState currentState = AppState::MAIN_MENU;
+
     float windowWidth;
     float windowHeight;
     
     sf::Font font;
-    sf::Font monoFont;
     
     enum class Category {
         LINKED_LIST,
@@ -53,12 +56,9 @@ private:
     std::vector<Button> dsButtons;
     std::vector<Button> controlButtons;
     std::vector<Button> exitConfirmButtons;
+    std::vector<Button> mainMenuButtons;
+    std::unique_ptr<Button> backButton;
     std::unique_ptr<Slider> speedSlider;
     
-    void buildCategoryButtons();
-    void buildDSButtons();
-    
     sf::RectangleShape sidebar;
-    sf::RectangleShape codePane;
-    float codePaneWidth;
 };

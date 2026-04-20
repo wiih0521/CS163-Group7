@@ -3,11 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <functional>
+#include <memory>
 #include <string>
 #include <map>
 #include <set>
 #include "UI/Button.h"
 #include "UI/TextInput.h"
+#include "UI/InputDialog.h"
 
 class AVLTree : public DataStructure {
 public:
@@ -21,9 +23,6 @@ public:
     void stepForward() override;
     void stepBackward() override;
     void onResize(float w, float h) override;
-
-    std::vector<std::string> getCode() const override;
-    int getCurrentLine() const override;
 
     void init(const std::vector<int>& data);
     void insert(int value);
@@ -48,6 +47,7 @@ private:
     sf::Font font;
     std::vector<Button> buttons;
     std::vector<TextInput> textInputs;
+    std::unique_ptr<InputDialog> activeDialog;
     void initUI();
 
     int getHeight(TreeNode* n);
@@ -63,7 +63,6 @@ private:
                   const std::vector<int>& hlValues, sf::Color hlColor,
                   int pivotValue = -1, int unbalancedValue = -1);
 
-    // Step-by-step animation
     struct VisualStep {
         std::vector<int> highlightedValues;
         std::string message;
@@ -71,11 +70,12 @@ private:
         int pivotValue = -1;       
         int unbalancedValue = -1;  
         SimNode* treeSnapshot = nullptr; 
+        std::vector<int> highlightedCodeLines;
     };
     std::vector<VisualStep> animSteps;
     std::map<int, TreeNode*> nodeCache;
+    std::vector<TreeNode*> gcNodes;
 
-    // Internal simulation helpers
     SimNode* copySimTree(SimNode* node);
     void deleteSimTree(SimNode* node);
     int getSimHeight(SimNode* n);
@@ -83,7 +83,7 @@ private:
     SimNode* rotateRightSim(SimNode* y);
     SimNode* rotateLeftSim(SimNode* x);
     void insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep>& steps, SimNode** rootRef);
-    void removeNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep>& steps, SimNode** rootRef);
+    void removeNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep>& steps, SimNode** rootRef, int* valToReplace = nullptr);
     SimNode* minValueNodeSim(SimNode* node);
 
     float scaleFactor = 1.0f;
@@ -93,9 +93,9 @@ private:
     bool isPlaying = false;
     float playTimer = 0.f;
     std::function<void()> commitOp;
-    std::vector<std::string> currentCode;
 
     void beginInsertSteps(int value);
     void beginDeleteSteps(int value);
     void beginSearchSteps(int value);
+    void beginUpdateSteps(int oldVal, int newVal);
 };

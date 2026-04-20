@@ -3,17 +3,15 @@
 
 static const float PI = 3.14159265f;
 
-// Build a filled rounded-rectangle as a triangle fan
 static sf::VertexArray makeRoundedRect(sf::Vector2f pos, sf::Vector2f size, float radius, sf::Color color, int segments = 6) {
     if (radius > size.x / 2.f) radius = size.x / 2.f;
     if (radius > size.y / 2.f) radius = size.y / 2.f;
 
-    // 4 corner centres
     sf::Vector2f corners[4] = {
-        { pos.x + radius,          pos.y + radius },           // TL
-        { pos.x + size.x - radius, pos.y + radius },           // TR
-        { pos.x + size.x - radius, pos.y + size.y - radius },  // BR
-        { pos.x + radius,          pos.y + size.y - radius }   // BL
+        { pos.x + radius,          pos.y + radius },        
+        { pos.x + size.x - radius, pos.y + radius },         
+        { pos.x + size.x - radius, pos.y + size.y - radius }, 
+        { pos.x + radius,          pos.y + size.y - radius }  
     };
     float startAngles[4] = { PI, 3.f*PI/2.f, 0.f, PI/2.f };
 
@@ -30,7 +28,7 @@ static sf::VertexArray makeRoundedRect(sf::Vector2f pos, sf::Vector2f size, floa
             va.append({ p, color });
         }
     }
-    // close the fan back to the first rim vertex
+
     float angle0 = startAngles[0];
     sf::Vector2f first = { corners[0].x + radius * std::cos(angle0),
                            corners[0].y + radius * std::sin(angle0) };
@@ -78,14 +76,12 @@ void Button::draw(sf::RenderWindow& window) {
     sf::Vector2f pos  = shape.getPosition();
     sf::Vector2f size = shape.getSize();
 
-    // Filled body
     auto body = makeRoundedRect(pos, size, radius, fillColor);
     window.draw(body);
 
-    // Thin outline — draw 4 corner arcs + 4 edges as a line strip
     sf::Color outlineColor = isEnabled ? sf::Color(180, 180, 180, 120) : sf::Color(80, 80, 80, 120);
     auto outline = makeRoundedRect(pos, size, radius, outlineColor, 8);
-    // Re-use vertex positions but draw as line strip for the border
+
     sf::VertexArray border(sf::LineStrip, outline.getVertexCount() - 1);
     for (std::size_t i = 1; i < outline.getVertexCount(); ++i)
         border[i - 1] = { outline[i].position, outlineColor };

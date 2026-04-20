@@ -3,9 +3,11 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <functional>
+#include <memory>
 #include <string>
 #include "UI/Button.h"
 #include "UI/TextInput.h"
+#include "UI/InputDialog.h"
 
 class MinMaxHeap : public DataStructure {
 public:
@@ -20,9 +22,6 @@ public:
     void stepForward() override;
     void stepBackward() override;
     void onResize(float w, float h) override;
-
-    std::vector<std::string> getCode() const override;
-    int getCurrentLine() const override;
 
     void init(const std::vector<int>& data);
     void insert(int value);
@@ -42,27 +41,28 @@ private:
     sf::Font font;
     std::vector<Button> buttons;
     std::vector<TextInput> textInputs;
+    std::unique_ptr<InputDialog> activeDialog;
     void initUI();
     void recalculateTargetPositions();
     void heapifyUp(int index);
     void heapifyDown(int index);
 
-    // Step-by-step animation
     struct VisualStep {
-        std::vector<int> highlighted;
+        std::vector<int> highlighted;   
         std::string message;
         sf::Color highlightColor  = sf::Color(220, 180, 0);
         sf::Color highlightColor2 = sf::Color(100, 180, 255);
-        int codeLine = -1;
+        std::vector<int> highlightedCodeLines;
     };
     std::vector<VisualStep> animSteps;
     int animStep = -1;
     bool isPlaying = false;
     float playTimer = 0.f;
     std::function<void()> commitOp;
-    std::vector<std::string> currentCode;
 
     void beginInsertSteps(int value);
     void beginExtractSteps();
+    void beginDeleteAtSteps(int idx);
     void beginSearchSteps(int value);
+    void beginUpdateSteps(int idx, int newValue);
 };

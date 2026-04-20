@@ -3,10 +3,13 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
+#include <queue>
+#include <memory>
 #include "UI/Button.h"
 #include "UI/TextInput.h"
+#include "UI/CodeHighlight.h"
+#include "UI/InputDialog.h"
 
-// Graph MST (Kruskal's and Prim's) visualizer
 class GraphMST : public DataStructure {
 public:
     enum class AlgoMode { KRUSKAL, PRIM };
@@ -23,9 +26,6 @@ public:
     void stepBackward() override;
     void onResize(float w, float h) override;
 
-    std::vector<std::string> getCode() const override;
-    int getCurrentLine() const override;
-
     void addNode(int id);
     void addEdge(int from, int to, int weight);
     void clear();
@@ -37,15 +37,21 @@ private:
     struct GNode {
         int id;
         sf::Vector2f position;
+        bool locked = false;
     };
 
     struct Edge {
         int from, to, weight;
-        bool inMST;    // true if selected by Kruskal
-        bool rejected; // true if would form a cycle
+        bool inMST;    
+        bool rejected; 
     };
 
-    // Union-Find helpers
+    struct CompareEdge {
+        bool operator()(const Edge& a, const Edge& b) const {
+            return a.weight > b.weight;
+        }
+    };
+
     struct UnionFind {
         std::vector<int> parent, rank_;
         void init(int n);
@@ -57,14 +63,14 @@ private:
     std::vector<Edge> edges;
 
     std::vector<Edge> sortedEdges;
+    std::vector<Edge> chosenEdges;
     UnionFind uf;
-    int kruskalStep;       // current edge index being considered
+    int kruskalStep;       
     bool kruskalRunning;
     bool kruskalDone;
     
-    // Prim step-by-step state
     std::vector<bool> primVisited;
-    std::vector<Edge> primEdges; // Edges currently crossing the cut
+    std::priority_queue<Edge, std::vector<Edge>, CompareEdge> primEdges;
     int primStep;
     bool primRunning;
     bool primDone;
@@ -74,8 +80,9 @@ private:
 
     bool isPlaying   = false;
     float playTimer  = 0.f;
-    std::vector<std::string> currentCode;
-    int currentCodeLine = -1;
+
+    CodeHighlight codeViewer;
+    std::vector<int> highlightedCodeLines;
 
     sf::Font font;
     std::vector<Button> buttons;
@@ -83,7 +90,12 @@ private:
 
     void initUI();
     int findNode(int id);
+    void clampNodeToGraphArea(sf::Vector2f& pos) const;
     void applyForceLayout(float dt);
     void drawArrow(sf::RenderWindow& window, sf::Vector2f from, sf::Vector2f to,
                    sf::Color color, int weight, bool inMST);
+
+    std::unique_ptr<InputDialog> activeDialog;
+    int draggedNodeIndex = -1;
+    sf::Vector2f dragOffset;
 };
