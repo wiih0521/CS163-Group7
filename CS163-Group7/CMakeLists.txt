@@ -11,6 +11,8 @@ set(SOURCES
     src/UI/Button.cpp
     src/UI/TextInput.cpp
     src/UI/Slider.cpp
+    src/UI/CodeHighlight.cpp
+    src/UI/InputDialog.cpp
     src/DataStructure/SinglyLinkedList.cpp
     src/DataStructure/MinMaxHeap.cpp
     src/DataStructure/AVLTree.cpp
@@ -63,3 +65,14 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     "${CMAKE_CURRENT_SOURCE_DIR}/assets"
     "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets"
 )
+
+file(GLOB SFML_LIB_DLLS "${CMAKE_CURRENT_SOURCE_DIR}/SFML/bin/lib*.dll")
+
+if(SFML_LIB_DLLS)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${SFML_LIB_DLLS}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "Đang copy các file lib*.dll vào thư mục build..."
+    )
+endif()
