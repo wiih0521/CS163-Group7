@@ -20,15 +20,15 @@ void MinMaxHeap::initUI() {
 	float codeBoxW = 350.f;
 	codeViewer.init(winW - codeBoxW, 0, codeBoxW, winH, &font);
 
-	float btnW = 140.f;
-	float btnH = 35.f;
+	float btnW = 230.f;
+	float btnH = 45.f;
 	float gap = 10.f;
-	int maxCols = std::max(1, (int)((winW - codeBoxW - 350.f) / (btnW + gap)));
-	float startX = winW - codeBoxW + 30.f - (maxCols * btnW + (maxCols - 1) * gap);
+	int maxCols = std::max(1, (int)((winW - codeBoxW - 480.f) / (btnW + gap)));
+	float startX = winW - codeBoxW - (maxCols * btnW + (maxCols - 1) * gap) - 15.f;
 	float colX = startX;
 	float startY = winH - 150.f;
 	int colCount = 0;
-
+	
 	buttons.push_back(Button(sf::Vector2f(btnW, btnH), sf::Vector2f(colX, startY), "Init Array", font, [this, colX, btnW, startY] () {
 		activeDialog = std::make_unique<InputDialog>("Init Array", std::vector<InputDialog::Field>{{"Comma separated values:", "e.g. 10,20,30"}}, font, [this] (const std::vector<std::string>& results) {
 			std::string t = results[0];
@@ -147,7 +147,7 @@ void MinMaxHeap::initUI() {
 		colX += btnW + gap;
 	}
 
-	buttons.push_back(Button(sf::Vector2f(btnW, btnH), sf::Vector2f(colX, startY), "Min / Max Toggle", font, [this] () {
+	buttons.push_back(Button(sf::Vector2f(btnW + 30.f, btnH), sf::Vector2f(colX, startY), "Min / Max Toggle", font, [this] () {
 		isMinHeap = !isMinHeap;
 		if (!rawData.empty()) buildHeap();
 	}));

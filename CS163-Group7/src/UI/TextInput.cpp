@@ -2,10 +2,10 @@
 
 TextInput::TextInput(const sf::Vector2f& size, const sf::Vector2f& position, const sf::Font& font, const std::string& placeholder)
 	: isFocused(false), isHovered(false) {
-	normalColor      = sf::Color(30, 30, 30);
-	hoverColor       = sf::Color(50, 50, 50);
-	focusedColor     = sf::Color(40, 40, 40);
-	textColor        = sf::Color::White;
+	normalColor = sf::Color(30, 30, 30);
+	hoverColor = sf::Color(50, 50, 50);
+	focusedColor = sf::Color(40, 40, 40);
+	textColor = sf::Color::White;
 	placeholderColor = sf::Color(120, 120, 120);
 
 	shape.setSize(size);

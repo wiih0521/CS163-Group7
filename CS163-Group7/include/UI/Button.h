@@ -22,9 +22,4 @@ private:
     bool isPressed;
     bool isActive;
     bool isEnabled = true;
-    
-    sf::Color normalColor;
-    sf::Color hoverColor;
-    sf::Color pressedColor;
-    sf::Color activeColor;
 };

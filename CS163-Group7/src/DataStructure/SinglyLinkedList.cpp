@@ -22,11 +22,11 @@ void SinglyLinkedList::initUI() {
 	float codeBoxW = 350.f;
 	codeViewer.init(winW - codeBoxW, 0, codeBoxW, winH, &font);
 
-	float btnW = 140.f;
-	float btnH = 35.f;
+	float btnW = 250.f;
+	float btnH = 45.f;
 	float gap = 10.f;
-	int maxCols = std::max(1, (int)((winW - codeBoxW - 350.f) / (btnW + gap)));
-	float startX = winW - codeBoxW + 30.f - (maxCols * btnW + (maxCols - 1) * gap);
+	int maxCols = std::max(1, (int)((winW - codeBoxW - 480.f) / (btnW + gap)));
+	float startX = winW - codeBoxW - (maxCols * btnW + (maxCols - 1) * gap) - 15.f;
 	float colX = startX;
 	float startY = winH - 150.f;
 	int colCount = 0;

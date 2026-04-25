@@ -5,6 +5,7 @@
 #include "DataStructure/DataStructure.h"
 #include "UI/Button.h"
 #include "UI/Slider.h"
+#include "UI/Theme.h"
 
 class App {
 public:
@@ -58,7 +59,9 @@ private:
 	std::vector<Button> exitConfirmButtons;
 	std::vector<Button> mainMenuButtons;
 	std::unique_ptr<Button> backButton;
+	std::unique_ptr<Button> themeToggleButton;
 	std::unique_ptr<Slider> speedSlider;
 
 	sf::RectangleShape sidebar;
 };
+

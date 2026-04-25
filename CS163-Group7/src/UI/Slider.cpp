@@ -1,4 +1,5 @@
 #include "UI/Slider.h"
+#include "UI/Theme.h"
 #include <iomanip>
 #include <sstream>
 
@@ -6,21 +7,17 @@ Slider::Slider(const sf::Vector2f& size, const sf::Vector2f& position, float min
 	: minValue(minVal), maxValue(maxVal), currentValue(initialVal), isDragging(false) {
 	track.setSize(sf::Vector2f(size.x, 4.f));
 	track.setPosition(position.x, position.y + size.y / 2.f);
-	track.setFillColor(sf::Color(100, 100, 100));
 
 	knob.setSize(sf::Vector2f(10.f, 20.f));
 	knob.setOrigin(5.f, 10.f);
-	knob.setFillColor(sf::Color(200, 200, 200));
 
 	labelText.setFont(font);
 	labelText.setString(label);
-	labelText.setCharacterSize(14);
-	labelText.setFillColor(sf::Color::White);
-	labelText.setPosition(position.x, position.y - 18.f);
+	labelText.setCharacterSize(18);
+	labelText.setPosition(position.x + 10.f, position.y - 25.f);
 
 	valueText.setFont(font);
-	valueText.setCharacterSize(14);
-	valueText.setFillColor(sf::Color::White);
+	valueText.setCharacterSize(18);
 
 	updateKnobPosition();
 }
@@ -38,6 +35,18 @@ void Slider::updateKnobPosition() {
 }
 
 void Slider::draw(sf::RenderWindow& window) {
+	if (Theme::currentTheme == Theme::ThemeMode::DARK) {
+		track.setFillColor(sf::Color(100, 100, 100));
+		knob.setFillColor(sf::Color(200, 200, 200));
+		labelText.setFillColor(sf::Color::White);
+		valueText.setFillColor(sf::Color::White);
+	} else {
+		track.setFillColor(sf::Color(150, 150, 150));
+		knob.setFillColor(sf::Color(100, 100, 100));
+		labelText.setFillColor(sf::Color::Black);
+		valueText.setFillColor(sf::Color::Black);
+	}
+	
 	window.draw(labelText);
 	window.draw(track);
 	window.draw(knob);

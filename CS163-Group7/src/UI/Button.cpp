@@ -1,4 +1,5 @@
 #include "UI/Button.h"
+#include "UI/Theme.h"
 #include <cmath>
 
 static const float PI = 3.14159265f;
@@ -8,10 +9,10 @@ static sf::VertexArray makeRoundedRect(sf::Vector2f pos, sf::Vector2f size, floa
 	if (radius > size.y / 2.f) radius = size.y / 2.f;
 
 	sf::Vector2f corners[4] = {
-		{ pos.x + radius,          pos.y + radius          },
-		{ pos.x + size.x - radius, pos.y + radius          },
+		{ pos.x + radius, pos.y + radius },
+		{ pos.x + size.x - radius, pos.y + radius },
 		{ pos.x + size.x - radius, pos.y + size.y - radius },
-		{ pos.x + radius,          pos.y + size.y - radius }
+		{ pos.x + radius, pos.y + size.y - radius }
 	};
 	float startAngles[4] = { PI, 3.f * PI / 2.f, 0.f, PI / 2.f };
 
@@ -42,21 +43,13 @@ static sf::VertexArray makeRoundedRect(sf::Vector2f pos, sf::Vector2f size, floa
 
 Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std::string& text, const sf::Font& font, std::function<void()> onClick)
 	: onClick(onClick), isHovered(false), isPressed(false), isActive(false) {
-	normalColor  = sf::Color(60, 60, 60);
-	hoverColor   = sf::Color(100, 100, 100);
-	pressedColor = sf::Color(40, 40, 40);
-	activeColor  = sf::Color(0, 120, 215);
-
 	shape.setSize(size);
 	shape.setPosition(position);
-	shape.setFillColor(normalColor);
 	shape.setOutlineThickness(1.f);
-	shape.setOutlineColor(sf::Color(150, 150, 150));
 
 	buttonText.setFont(font);
 	buttonText.setString(text);
-	buttonText.setCharacterSize(16);
-	buttonText.setFillColor(sf::Color::White);
+	buttonText.setCharacterSize(30);
 
 	sf::FloatRect textBounds = buttonText.getLocalBounds();
 	buttonText.setOrigin(textBounds.left + textBounds.width / 2.0f, textBounds.top + textBounds.height / 2.0f);
@@ -64,16 +57,33 @@ Button::Button(const sf::Vector2f& size, const sf::Vector2f& position, const std
 }
 
 void Button::draw(sf::RenderWindow& window) {
+	sf::Color normalColor, hoverColor, pressedColor, activeColor;
+	sf::Color textColor;
+	
+	if (Theme::currentTheme == Theme::ThemeMode::DARK) {
+		normalColor = sf::Color(60, 60, 60);
+		hoverColor = sf::Color(100, 100, 100);
+		pressedColor = sf::Color(40, 40, 40);
+		activeColor = sf::Color(0, 120, 215);
+		textColor = sf::Color::White;
+	} else {
+		normalColor = sf::Color(200, 200, 200);
+		hoverColor = sf::Color(160, 160, 160);
+		pressedColor = sf::Color(220, 220, 220);
+		activeColor = sf::Color(0, 120, 215);
+		textColor = sf::Color::Black;
+	}
+	
 	sf::Color fillColor;
 	if (!isEnabled) {
 		fillColor = sf::Color(40, 40, 40);
 		buttonText.setFillColor(sf::Color(100, 100, 100));
 	} else {
-		buttonText.setFillColor(sf::Color::White);
-		if (isActive)       fillColor = activeColor;
+		buttonText.setFillColor(textColor);
+		if (isActive) fillColor = activeColor;
 		else if (isPressed) fillColor = pressedColor;
 		else if (isHovered) fillColor = hoverColor;
-		else                fillColor = normalColor;
+		else fillColor = normalColor;
 	}
 
 	const float radius = 8.f;
