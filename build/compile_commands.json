@@ -1,0 +1,68 @@
+[
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\main.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\main.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/main.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/main.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\App.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\App.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/App.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/App.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\UI\\Button.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\UI\\Button.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/UI/Button.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/UI/Button.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\UI\\TextInput.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\UI\\TextInput.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/UI/TextInput.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/UI/TextInput.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\UI\\Slider.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\UI\\Slider.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/UI/Slider.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/UI/Slider.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\UI\\CodeHighlight.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\UI\\CodeHighlight.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/UI/CodeHighlight.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/UI/CodeHighlight.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\UI\\InputDialog.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\UI\\InputDialog.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/UI/InputDialog.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/UI/InputDialog.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\DataStructure\\SinglyLinkedList.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\DataStructure\\SinglyLinkedList.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/DataStructure/SinglyLinkedList.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/DataStructure/SinglyLinkedList.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\DataStructure\\MinMaxHeap.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\DataStructure\\MinMaxHeap.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/DataStructure/MinMaxHeap.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/DataStructure/MinMaxHeap.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\DataStructure\\AVLTree.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\DataStructure\\AVLTree.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/DataStructure/AVLTree.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/DataStructure/AVLTree.cpp.obj"
+},
+{
+  "directory": "D:/APCS25/CS163/CS163-Group7/build",
+  "command": "D:\\msys64\\ucrt64\\bin\\g++.exe -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/include -ID:/APCS25/CS163/CS163-Group7/CS163-Group7/SFML/include -g -std=gnu++17 -o CMakeFiles\\CS163-Group7.dir\\src\\DataStructure\\GraphMST.cpp.obj -c D:\\APCS25\\CS163\\CS163-Group7\\CS163-Group7\\src\\DataStructure\\GraphMST.cpp",
+  "file": "D:/APCS25/CS163/CS163-Group7/CS163-Group7/src/DataStructure/GraphMST.cpp",
+  "output": "D:/APCS25/CS163/CS163-Group7/build/CMakeFiles/CS163-Group7.dir/src/DataStructure/GraphMST.cpp.obj"
+}
+]
