@@ -1,4 +1,5 @@
 #include "DataStructure/AVLTree.h"
+#include "UI/Theme.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -216,14 +217,15 @@ void AVLTree::drawNode(sf::RenderWindow& window, TreeNode* node, const std::vect
 	circle.setPosition(node->position);
 	circle.setFillColor(fill);
 	circle.setOutlineThickness(2.f * std::max(0.6f, scaleFactor));
-	circle.setOutlineColor(sf::Color::White);
+	// circle.setOutlineColor(sf::Color::White);
+	circle.setOutlineColor(sf::Color(90, 90, 90));
 	window.draw(circle);
 
 	sf::Text txt;
 	txt.setFont(font);
 	txt.setString(std::to_string(node->value));
 	txt.setCharacterSize(static_cast<unsigned int>(std::max(10.f, 18 * scaleFactor)));
-	txt.setFillColor(sf::Color::White);
+	txt.setOutlineColor(sf::Color(120, 120, 120));
 	sf::FloatRect tb = txt.getLocalBounds();
 	txt.setOrigin(tb.left + tb.width / 2.f, tb.top + tb.height / 2.f);
 	txt.setPosition(node->position + sf::Vector2f(radius, radius));
@@ -233,7 +235,7 @@ void AVLTree::drawNode(sf::RenderWindow& window, TreeNode* node, const std::vect
 	bf.setFont(font);
 	bf.setString("bf:" + std::to_string(getBalance(node)));
 	bf.setCharacterSize(static_cast<unsigned int>(std::max(8.f, 12 * scaleFactor)));
-	bf.setFillColor(sf::Color(200, 200, 100));
+	bf.setFillColor(sf::Color(160, 160, 60));
 	bf.setPosition(node->position.x + radius - 10 * std::max(0.6f, scaleFactor), node->position.y - radius - 5.f);
 	window.draw(bf);
 
@@ -248,7 +250,7 @@ void AVLTree::draw(sf::RenderWindow& window) {
 	title.setFont(font);
 	title.setString("AVL Tree");
 	title.setCharacterSize(24);
-	title.setFillColor(sf::Color::White);
+	title.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 	sf::FloatRect tb = title.getLocalBounds();
 	title.setOrigin(tb.left + tb.width / 2.f, 0.f);
 	title.setPosition(centerX, 10);
@@ -261,15 +263,15 @@ void AVLTree::draw(sf::RenderWindow& window) {
 
 	if (animStep >= 0 && animStep < (int)animSteps.size()) {
 		hlValues = animSteps[animStep].highlightedValues;
-		hlColor  = animSteps[animStep].highlightColor;
-		pVal     = animSteps[animStep].pivotValue;
-		uVal     = animSteps[animStep].unbalancedValue;
+		hlColor = animSteps[animStep].highlightColor;
+		pVal = animSteps[animStep].pivotValue;
+		uVal = animSteps[animStep].unbalancedValue;
 
 		sf::Text msg;
 		msg.setFont(font);
 		msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
 		msg.setCharacterSize(17);
-		msg.setFillColor(sf::Color(200, 230, 255));
+		msg.setFillColor(sf::Color(100, 170, 230));
 		sf::FloatRect mb = msg.getLocalBounds();
 		msg.setOrigin(mb.left + mb.width / 2.f, 0.f);
 		msg.setPosition(centerX, 40);
@@ -739,7 +741,7 @@ void AVLTree::insertNodeSim(SimNode** nodeRef, int value, std::vector<VisualStep
 
 	if (!node) {
 		*nodeRef = new SimNode{value, 1, nullptr, nullptr};
-		takeSnapshot("Leaf reached: Inserting " + std::to_string(value) + " here.", {value}, sf::Color(0, 200, 80), -1, -1, {1, 2});
+		takeSnapshot("Leaf reached: Inserting " + std::to_string(value) + " here.", {value}, sf::Color(0, 170, 90), -1, -1, {1, 2});
 		return;
 	}
 
@@ -970,7 +972,7 @@ void AVLTree::insertSteps(int value, bool isSubOperation) {
 
 		VisualStep s;
 		s.message = exists ? std::to_string(value) + " already exists in tree (Run at Once)" : "Inserted " + std::to_string(value) + " (Run at Once)";
-		s.highlightColor = exists ? sf::Color(220, 60, 60) : sf::Color(0, 200, 80);
+		s.highlightColor = exists ? sf::Color(220, 60, 60) : sf::Color(0, 170, 90);
 		animSteps.push_back(s);
 		animStep = 0;
 		return;
@@ -1005,12 +1007,12 @@ void AVLTree::insertSteps(int value, bool isSubOperation) {
 		if (animSteps.empty()) {
 			VisualStep s;
 			s.message = std::to_string(value) + " already exists!";
-			s.highlightColor = sf::Color(220, 60, 60);
+			s.highlightColor = sf::Color(180, 70, 70);
 			animSteps.push_back(s);
 		} else {
 			VisualStep done;
 			done.message = "Operation complete: " + std::to_string(value) + " processed!";
-			done.highlightColor = sf::Color(0, 200, 80);
+			done.highlightColor = sf::Color(0, 170, 90);
 			done.treeSnapshot = copySimTree(animSteps.back().treeSnapshot);
 			animSteps.push_back(done);
 		}
@@ -1026,7 +1028,7 @@ void AVLTree::deleteSteps(int value, bool isSubOperation) {
 
 		VisualStep s;
 		s.message = "Deleted " + std::to_string(value) + " (Run at Once)";
-		s.highlightColor = sf::Color(220, 60, 60);
+		s.highlightColor = sf::Color(180, 70, 70);
 
 		auto toS = [&] (auto self, TreeNode* nd) -> SimNode* {
 			if (!nd) return nullptr;
@@ -1069,12 +1071,12 @@ void AVLTree::deleteSteps(int value, bool isSubOperation) {
 		if (animSteps.empty()) {
 			VisualStep s;
 			s.message = std::to_string(value) + " not found.";
-			s.highlightColor = sf::Color(220, 60, 60);
+			s.highlightColor = sf::Color(180, 70, 70);
 			animSteps.push_back(s);
 		} else {
 			VisualStep done;
 			done.message = "Operation complete: " + std::to_string(value) + " removed!";
-			done.highlightColor = sf::Color(220, 60, 60);
+			done.highlightColor = sf::Color(180, 70, 70);
 			done.treeSnapshot = animSteps.back().treeSnapshot ? copySimTree(animSteps.back().treeSnapshot) : nullptr;
 			animSteps.push_back(done);
 		}
@@ -1110,11 +1112,11 @@ void AVLTree::searchSteps(int value, bool isSubOperation) {
 		VisualStep s;
 		if (f) {
 			s.message = "Found " + std::to_string(value) + " (Run at Once)";
-			s.highlightColor = sf::Color(0, 200, 80);
+			s.highlightColor = sf::Color(0, 170, 90);
 			s.highlightedValues = {value};
 		} else {
 			s.message = std::to_string(value) + " not found (Run at Once)";
-			s.highlightColor = sf::Color(220, 60, 60);
+			s.highlightColor = sf::Color(180, 70, 70);
 		}
 		animSteps.push_back(s);
 		animStep = 0;
@@ -1156,7 +1158,7 @@ void AVLTree::searchSteps(int value, bool isSubOperation) {
 		} else {
 			s.highlightedCodeLines = {1, 2, 4, 6, 7};
 			s.message = "Found " + std::to_string(value) + "!";
-			s.highlightColor = sf::Color(0, 200, 80);
+			s.highlightColor = sf::Color(0, 170, 90);
 			animSteps.push_back(s);
 			found = true;
 			break;
@@ -1166,7 +1168,7 @@ void AVLTree::searchSteps(int value, bool isSubOperation) {
 	VisualStep done;
 	if (found) {
 		done.message = "Search finished! Found " + std::to_string(value);
-		done.highlightColor = sf::Color(0, 200, 80);
+		done.highlightColor = sf::Color(0, 170, 90);
 		done.highlightedValues = {value};
 		done.highlightedCodeLines = {};
 	} else {
@@ -1177,7 +1179,7 @@ void AVLTree::searchSteps(int value, bool isSubOperation) {
 		animSteps.push_back(s);
 
 		done.message = "Search finished! Not found.";
-		done.highlightColor = sf::Color(220, 60, 60);
+		done.highlightColor = sf::Color(180, 70, 70);
 		done.highlightedCodeLines = {};
 	}
 	animSteps.push_back(done);

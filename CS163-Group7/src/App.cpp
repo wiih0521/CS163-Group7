@@ -239,8 +239,8 @@ void App::render() {
 	window.clear(Theme::background());
 
 	if (currentState == AppState::MAIN_MENU) {
-		sf::Text title("Data Structure Visualizer", font, 47);
-		title.setFillColor(Theme::textOnDark());
+		sf::Text title("Data Structure Visualizer\n\n             Group 7", font, 47);
+		title.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 		sf::FloatRect tb = title.getLocalBounds();
 		title.setPosition((windowWidth - tb.width) / 2.f, 100.f);
 		window.draw(title);
@@ -265,7 +265,7 @@ void App::render() {
 
 		sf::Text controlsTitle("Controls", font, 20);
 		controlsTitle.setPosition(10.f, windowHeight - 185.f);
-		controlsTitle.setFillColor(Theme::LightTheme::textOnLight());
+		controlsTitle.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 		window.draw(controlsTitle);
 
 		for (std::size_t i = 0; i < controlButtons.size(); ++i)
@@ -289,7 +289,7 @@ void App::render() {
 		window.draw(box);
 
 		sf::Text qText("Are you sure to exit?", font, 20);
-		qText.setFillColor(Theme::textOnDark());
+		qText.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 
 		sf::FloatRect qb = qText.getLocalBounds();
 		qText.setOrigin(qb.left + qb.width / 2.f, qb.top + qb.height / 2.f);

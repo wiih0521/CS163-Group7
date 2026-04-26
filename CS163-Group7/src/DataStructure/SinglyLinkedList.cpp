@@ -1,4 +1,5 @@
 #include "DataStructure/SinglyLinkedList.h"
+#include "UI/Theme.h"
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -184,7 +185,7 @@ void SinglyLinkedList::draw(sf::RenderWindow &window) {
 	title.setFont(font);
 	title.setString("Singly Linked List");
 	title.setCharacterSize(24);
-	title.setFillColor(sf::Color::White);
+	title.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 	sf::FloatRect tb = title.getLocalBounds();
 	title.setOrigin(tb.left + tb.width / 2.f, 0.f);
 	title.setPosition(centerX, 10);
@@ -195,7 +196,7 @@ void SinglyLinkedList::draw(sf::RenderWindow &window) {
 		msg.setFont(font);
 		msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
 		msg.setCharacterSize(17);
-		msg.setFillColor(sf::Color(200, 230, 255));
+		msg.setFillColor(sf::Color(100, 170, 230));
 		sf::FloatRect mb = msg.getLocalBounds();
 		msg.setOrigin(mb.left + mb.width / 2.f, 0.f);
 		msg.setPosition(centerX, 40);
@@ -234,7 +235,7 @@ void SinglyLinkedList::draw(sf::RenderWindow &window) {
 
 				sf::RectangleShape line(sf::Vector2f(len, 2.f));
 				line.setPosition(s);
-				line.setFillColor(sf::Color::White);
+				line.setOutlineColor(sf::Color(120, 120, 120));
 
 				float angle = std::atan2(d.y, d.x) * 180.f / 3.14159f;
 				line.setRotation(angle);
@@ -244,7 +245,7 @@ void SinglyLinkedList::draw(sf::RenderWindow &window) {
 				arr.setPoint(0, {0, 0});
 				arr.setPoint(1, {-10, 5});
 				arr.setPoint(2, {-10, -5});
-				arr.setFillColor(sf::Color::White);
+				arr.setOutlineColor(sf::Color(120, 120, 120));
 				arr.setPosition(e);
 				arr.setRotation(angle);
 				window.draw(arr);
@@ -266,14 +267,15 @@ void SinglyLinkedList::draw(sf::RenderWindow &window) {
 		circle.setPosition(nodes[i].position);
 		circle.setFillColor(fillColor);
 		circle.setOutlineThickness(2.f);
-		circle.setOutlineColor(sf::Color::White);
+		// circle.setOutlineColor(sf::Color::White);
+		circle.setOutlineColor(sf::Color(90, 90, 90));
 		window.draw(circle);
 
 		sf::Text txt;
 		txt.setFont(font);
 		txt.setString(std::to_string(nodes[i].value));
 		txt.setCharacterSize(20);
-		txt.setFillColor(sf::Color::White);
+		txt.setOutlineColor(sf::Color(120, 120, 120));
 
 		sf::FloatRect tb = txt.getLocalBounds();
 		txt.setOrigin(tb.left + tb.width / 2.f, tb.top + tb.height / 2.f);

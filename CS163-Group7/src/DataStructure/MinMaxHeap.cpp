@@ -1,4 +1,5 @@
 #include "DataStructure/MinMaxHeap.h"
+#include "UI/Theme.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -162,7 +163,7 @@ void MinMaxHeap::draw(sf::RenderWindow& window) {
 		msg.setFont(font);
 		msg.setString(sf::String::fromUtf8(animSteps[animStep].message.begin(), animSteps[animStep].message.end()));
 		msg.setCharacterSize(17);
-		msg.setFillColor(sf::Color(200, 230, 255));
+		msg.setFillColor(sf::Color(100, 170, 230));
 		sf::FloatRect mb = msg.getLocalBounds();
 		msg.setOrigin(mb.left + mb.width / 2.f, 0.f);
 		msg.setPosition(centerX, 40);
@@ -221,7 +222,8 @@ void MinMaxHeap::draw(sf::RenderWindow& window) {
 		circle.setPosition(nodes[i].position);
 		circle.setFillColor(fillColor);
 		circle.setOutlineThickness(2.f);
-		circle.setOutlineColor(sf::Color::White);
+		// circle.setOutlineColor(sf::Color::White);
+		circle.setOutlineColor(sf::Color(90, 90, 90));
 		window.draw(circle);
 
 		sf::Text txt;
@@ -247,7 +249,8 @@ void MinMaxHeap::draw(sf::RenderWindow& window) {
 	modeText.setFont(font);
 	modeText.setString(isMinHeap ? "Min Heap" : "Max Heap");
 	modeText.setCharacterSize(24);
-	modeText.setFillColor(sf::Color::White);
+	// modeText.setFillColor(sf::Color::White);
+	modeText.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 	sf::FloatRect mtb = modeText.getLocalBounds();
 	modeText.setOrigin(mtb.left + mtb.width / 2.f, 0.f);
 	modeText.setPosition((winW - 350.f) / 2.f, 10);
@@ -436,7 +439,7 @@ void MinMaxHeap::insertSteps(int value) {
 		insert(value);
 		VisualStep s;
 		s.message = "Inserted " + std::to_string(value) + " (Run at Once)";
-		s.highlightColor = sf::Color(0, 200, 80);
+		s.highlightColor = sf::Color(0, 140, 85);
 		animSteps.push_back(s);
 		animStep = 0;
 		return;
@@ -494,7 +497,7 @@ void MinMaxHeap::insertSteps(int value) {
 		} else {
 			s.highlightedCodeLines = {3, 4, 5};
 			s.message = "HeapifyUp: [" + std::to_string(si) + "]=" + std::to_string(sim[si]) + " OK vs parent [" + std::to_string(parent) + "]=" + std::to_string(sim[parent]) + " → Done";
-			s.highlightColor = sf::Color(0, 200, 80);
+			s.highlightColor = sf::Color(0, 140, 85);
 			animSteps.push_back(s);
 			break;
 		}
@@ -502,7 +505,7 @@ void MinMaxHeap::insertSteps(int value) {
 
 	VisualStep done;
 	done.message = "Inserted " + std::to_string(value) + "!";
-	done.highlightColor = sf::Color(0, 200, 80);
+	done.highlightColor = sf::Color(0, 140, 85);
 	done.highlightedCodeLines = {};
 	animSteps.push_back(done);
 
@@ -591,7 +594,7 @@ void MinMaxHeap::extractSteps() {
 			s.highlighted = {si};
 			s.highlightedCodeLines = {5, 6, 7, 9, 11};
 			s.message = "Heap property satisfied. Done!";
-			s.highlightColor = sf::Color(0, 200, 80);
+			s.highlightColor = sf::Color(0, 140, 85);
 			animSteps.push_back(s);
 			break;
 		}
@@ -633,7 +636,7 @@ void MinMaxHeap::searchSteps(int value) {
 		VisualStep s;
 		if (found) {
 			s.message = "Found " + std::to_string(value) + " at index " + std::to_string(foundIdx) + "! (Run at Once)";
-			s.highlightColor = sf::Color(0, 200, 80);
+			s.highlightColor = sf::Color(0, 140, 85);
 			s.highlighted = {foundIdx};
 		} else {
 			s.message = std::to_string(value) + " not found in the heap. (Run at Once)";
@@ -685,7 +688,7 @@ void MinMaxHeap::searchSteps(int value) {
 		if (rawData[idx] == value) {
 			s.highlightedCodeLines = {2, 3, 4, 5};
 			s.message = "Found " + std::to_string(value) + " at index " + std::to_string(idx) + "!";
-			s.highlightColor = sf::Color(0, 200, 80);
+			s.highlightColor = sf::Color(0, 140, 85);
 			animSteps.push_back(s);
 			found = true;
 			foundIdx = idx;
@@ -730,7 +733,7 @@ void MinMaxHeap::searchSteps(int value) {
 	VisualStep done;
 	if (found) {
 		done.message = "Search finished! Found at index " + std::to_string(foundIdx);
-		done.highlightColor = sf::Color(0, 200, 80);
+		done.highlightColor = sf::Color(0, 140, 85);
 		done.highlighted = {foundIdx};
 		done.highlightedCodeLines = {};
 	} else {
@@ -882,7 +885,7 @@ void MinMaxHeap::updateSteps(int idx, int newValue) {
 
 		VisualStep s;
 		s.message = "Updated index " + std::to_string(idx) + " to " + std::to_string(newValue) + " (Run at Once)";
-		s.highlightColor = sf::Color(100, 180, 255);
+		s.highlightColor = sf::Color(70, 140, 220);
 		animSteps.push_back(s);
 		animStep = 0;
 		return;
@@ -901,7 +904,7 @@ void MinMaxHeap::updateSteps(int idx, int newValue) {
 		VisualStep s;
 		s.highlighted = {idx};
 		s.message = "Changing heap[" + std::to_string(idx) + "] from " + std::to_string(oldVal) + " to " + std::to_string(newValue);
-		s.highlightColor = sf::Color(100, 180, 255);
+		s.highlightColor = sf::Color(70, 140, 220);
 		s.highlightedCodeLines = {1};
 		animSteps.push_back(s);
 	}
@@ -947,7 +950,7 @@ void MinMaxHeap::updateSteps(int idx, int newValue) {
 	{
 		VisualStep done;
 		done.message = "Update completed!";
-		done.highlightColor = sf::Color(100, 180, 255);
+		done.highlightColor = sf::Color(70, 140, 220);
 		animSteps.push_back(done);
 	}
 

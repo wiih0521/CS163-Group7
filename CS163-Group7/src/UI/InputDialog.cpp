@@ -33,7 +33,7 @@ InputDialog::InputDialog(
 	titleText.setFont(font);
 	titleText.setString(title);
 	titleText.setCharacterSize(20);
-	titleText.setFillColor(Theme::textOnDark());
+	titleText.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 	titleText.setPosition(boxX + 20.f, boxY + 20.f);
 
 	float currentY = boxY + 60.f;
@@ -43,7 +43,7 @@ InputDialog::InputDialog(
 		label.setFont(font);
 		label.setString(field.label);
 		label.setCharacterSize(16);
-		label.setFillColor(Theme::textOnDark());
+		label.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 		label.setPosition(boxX + 20.f, currentY + 5.f);
 		labels.push_back(label);
 

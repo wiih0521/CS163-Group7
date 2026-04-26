@@ -1,4 +1,5 @@
 #include "DataStructure/GraphMST.h"
+#include "UI/Theme.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -198,7 +199,7 @@ void GraphMST::drawArrow(sf::RenderWindow& window, sf::Vector2f from, sf::Vector
 	wText.setFont(font);
 	wText.setString(std::to_string(weight));
 	wText.setCharacterSize(14);
-	wText.setFillColor(sf::Color(255, 230, 100));
+	wText.setFillColor(sf::Color(150, 150, 150));
 	sf::FloatRect wb = wText.getLocalBounds();
 	wText.setOrigin(wb.left + wb.width / 2.f, wb.top + wb.height / 2.f);
 	wText.setPosition(mid + sf::Vector2f(-dir.y, dir.x) * 14.f);
@@ -213,7 +214,7 @@ void GraphMST::draw(sf::RenderWindow& window) {
 	title.setFont(font);
 	title.setString(currentMode == GraphMST::AlgoMode::KRUSKAL ? "MST - Kruskal's Algorithm" : "MST - Prim's Algorithm");
 	title.setCharacterSize(24);
-	title.setFillColor(sf::Color::White);
+	title.setFillColor(Theme::currentTheme == Theme::ThemeMode::DARK ? Theme::textOnDark() : Theme::textOnLight());
 	sf::FloatRect titleBounds = title.getLocalBounds();
 	title.setOrigin(titleBounds.left + titleBounds.width / 2.f, 0.f);
 	title.setPosition(centerX, 10);
@@ -223,7 +224,7 @@ void GraphMST::draw(sf::RenderWindow& window) {
 	guide.setFont(font);
 	guide.setString("Left drag: move node | Right click node: lock/unlock");
 	guide.setCharacterSize(14);
-	guide.setFillColor(sf::Color(220, 230, 235));
+	guide.setFillColor(sf::Color(150, 150, 150));
 	sf::FloatRect guideBounds = guide.getLocalBounds();
 	guide.setOrigin(guideBounds.left + guideBounds.width / 2.f, 0.f);
 	guide.setPosition(centerX, 70);
@@ -234,7 +235,8 @@ void GraphMST::draw(sf::RenderWindow& window) {
 		status.setFont(font);
 		status.setString("MST Complete! Total Weight: " + std::to_string(totalMSTWeight));
 		status.setCharacterSize(18);
-		status.setFillColor(sf::Color(100, 255, 150));
+		// status.setFillColor(sf::Color(100, 255, 150));
+		status.setFillColor(sf::Color(0, 170, 120));
 		sf::FloatRect stBounds = status.getLocalBounds();
 		status.setOrigin(stBounds.left + stBounds.width / 2.f, 0.f);
 		status.setPosition(centerX, 40);
@@ -245,7 +247,7 @@ void GraphMST::draw(sf::RenderWindow& window) {
 		int currentStep = kruskalRunning ? kruskalStep : primStep;
 		status.setString("Step " + std::to_string(currentStep) + "  |  Press 'Step' to advance");
 		status.setCharacterSize(16);
-		status.setFillColor(sf::Color(180, 220, 255));
+		status.setFillColor(sf::Color(70, 150, 220));
 		sf::FloatRect stBounds = status.getLocalBounds();
 		status.setOrigin(stBounds.left + stBounds.width / 2.f, 0.f);
 		status.setPosition(centerX, 40);
@@ -290,7 +292,7 @@ void GraphMST::draw(sf::RenderWindow& window) {
 		}
 
 		circle.setOutlineThickness(3.f);
-		circle.setOutlineColor(n.locked ? sf::Color(255, 190, 80) : sf::Color(100, 180, 255));
+		circle.setOutlineColor(n.locked ? sf::Color(230, 140, 40) : sf::Color(50, 140, 210));
 		window.draw(circle);
 
 		sf::Text idText;
@@ -638,10 +640,10 @@ void GraphMST::clampNodeToGraphArea(sf::Vector2f& pos) const {
 
 void GraphMST::applyForceLayout(float dt) {
 	const float kCoulomb = 60000.f;
-	const float minDist = 24.f;
+	const float minDist = 200.f;
 	const float maxRepel = 6000.f;
 	const float springK = 0.024f;
-	const float restLength = 140.f;
+	const float restLength = 500.f;
 
 	for (size_t i = 0; i < nodes.size(); ++i) {
 		if (nodes[i].locked || (int)i == draggedNodeIndex)

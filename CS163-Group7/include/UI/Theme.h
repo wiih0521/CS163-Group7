@@ -16,22 +16,22 @@ inline sf::Color withAlpha(sf::Color c, sf::Uint8 a) {
 
 namespace DarkTheme {
     inline sf::Color background() { return sf::Color(0x29, 0x2F, 0x36); }
-    inline sf::Color surface() { return sf::Color(0xE0, 0xDB, 0xD8); }
-    inline sf::Color surfaceAlt() { return sf::Color(0xFA, 0xF5, 0xF1); }
+    inline sf::Color surface() { return sf::Color(0x33, 0x39, 0x40); }
+    inline sf::Color surfaceAlt() { return sf::Color(0x3B, 0x42, 0x48); }
     inline sf::Color muted() { return sf::Color(0x8F, 0x7A, 0x6E); }
     inline sf::Color accent() { return sf::Color(0xA4, 0x1F, 0x13); }
-    inline sf::Color textOnDark() { return surfaceAlt(); }
+    inline sf::Color textOnDark() { return sf::Color(0xFA, 0xF5, 0xF1); }
     inline sf::Color textOnLight() { return background(); }
 }
 
 namespace LightTheme {
     inline sf::Color background() { return sf::Color(0xFA, 0xF5, 0xF1); }
-    inline sf::Color surface() { return sf::Color(0x29, 0x2F, 0x36); }
-    inline sf::Color surfaceAlt() { return sf::Color(0x1F, 0x25, 0x2C); }
+    inline sf::Color surface() { return sf::Color(0xF1, 0xEC, 0xE8); }
+    inline sf::Color surfaceAlt() { return sf::Color(0xE8, 0xE2, 0xDD); }
     inline sf::Color muted() { return sf::Color(0x70, 0x85, 0x91); }
     inline sf::Color accent() { return sf::Color(0xA4, 0x1F, 0x13); }
     inline sf::Color textOnDark() { return background(); }
-    inline sf::Color textOnLight() { return surface(); }
+    inline sf::Color textOnLight() { return sf::Color(0x29, 0x2F, 0x36); }
 }
 
 inline sf::Color background() { 
