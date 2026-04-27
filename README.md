@@ -1,5 +1,7 @@
 # CS163-Group7
+
 Project: Data Structures Viualizer
+
 Group: 07
 
 ## Build and Run (Windows - MinGW)
